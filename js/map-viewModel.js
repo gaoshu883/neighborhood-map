@@ -17,7 +17,7 @@ var app = app || {};
                 // mapTypeControlOptions: {
                 //     mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
                 // },
-                scrollwheel: false,
+                // scrollwheel: false,
                 mapTypeControl: false, // 禁止用户修改为其他类型的地图
                 zoom: 12
             });
@@ -117,7 +117,7 @@ var app = app || {};
 
         // 过滤markers
         _markers = _markers.filter(function(val) {
-            return app.googleMap.locations.some(function(ele) {
+            return _locations.some(function(ele) {
                 return ele.id == val.id;
             });
         });
