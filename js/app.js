@@ -1,8 +1,7 @@
 // 全局变量
 // var app = app || {};
 
-
-// app.viewModel = new app.ViewModel();
+// 最后绑定数据
 // ko.applyBindings(app.viewModel);
 
 
