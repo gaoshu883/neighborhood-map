@@ -12,7 +12,7 @@ var app = app || {};
     var self = this;
 
     // 监控地点数组
-    self.locationList = ko.observableArray(locations);
+    self.locationList = ko.observableArray();
     // 缓存并监控过滤条件变量
     // property to store the filter
     self.currentFilter = ko.observable();
@@ -21,6 +21,7 @@ var app = app || {};
     // http://stackoverflow.com/questions/20857594/knockout-filtering-on-observable-array
     self.filterLocations = ko.computed(function() {
         if(!self.currentFilter()) {
+          // there is no filter string
             return self.locationList();
         } else {
           // debugger;
@@ -49,6 +50,9 @@ var app = app || {};
     // 缓存被用户单击的地点
     self.currentLocation = ko.observable();
 
+    // 如果从4sq获取的图片无法使用，则使用该占位图片
+    self.imageHolder = "http://lorempixel.com/500/300";
+
     // 显示当前选中地点的详情信息
     // 如何实现：单击同一对象：关闭；单击另一对象：再次设置
     self.showDetails = function() {
@@ -75,8 +79,6 @@ var app = app || {};
   };
 
   // 在map之前创建列表
-  // 并绑定数据
   app.viewModel = new app.ViewModel();
-  ko.applyBindings(app.viewModel);
 
 })();

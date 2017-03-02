@@ -23,6 +23,11 @@ body {
     height: 100%;
     z-index: 999;
 }
+@media screen and (min-width: 400px) {
+    .search-panel {
+        width: 400px;
+    }
+}
 
 .search-bar {
     padding: 1rem 0;
@@ -62,11 +67,11 @@ label {
     color: #268bd2;
 }
 
-
 .locations-list {
     padding: 1rem;
     height: calc(100% - 3.5rem);
     background: #fff;
+    overflow-y: auto;
     will-change:transform;
     transition: transform 1s ease;
 }
@@ -80,9 +85,18 @@ label {
     bottom: 0;
     left: 0;
     width: 100%;
+    /*height: 100%;*/
     background: #268;
-    width: 400px;
     z-index: 9999;
+}
+@media screen and (min-width: 400px) {
+    .location-details {
+        width: 400px;
+    }
+}
+
+.location-img {
+    max-width: 100%;
 }
 
 .search-hide {
