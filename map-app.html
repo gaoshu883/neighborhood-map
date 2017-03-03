@@ -9,40 +9,47 @@
 </head>
 
 <body>
-    <!-- 搜索面板 -->
-    <div class="search-panel">
-        <!-- 搜索条 -->
-        <div class="search-bar">
-          <!-- 消除inline-block元素之间的间距 -->
-            <span class="toggle-list" data-bind="click:toggleSideBar">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter"><span class="search-btn">Filter</span>
-        </div>
-        <!-- 满足过滤条件的地点列表 -->
-        <div class="locations-list" data-bind="css:searchSideBar">
-            <!-- ko foreach:filterLocations -->
-                <div class="location-item" data-bind="click:$parent.showDetails">
-                    <div>
-                        <span data-bind="text:$index() + 1"></span>
-                        <span data-bind="text:name"></span>
-                        <span data-bind="text:rating"></span>
-                    </div>
-                    <p data-bind="text:address[0]"></p>
+    <div id="map"></div>
+
+    <!-- 搜索条 -->
+    <div class="search-panel search-bar">
+      <!-- 消除inline-block元素之间的间距 -->
+        <span class="toggle-list" data-bind="click:toggleList">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter"><span class="search-btn">Filter</span>
+    </div>
+    <!-- 满足过滤条件的地点列表 -->
+    <!-- 当筛选出地点才会显示 -->
+    <div class="search-panel locations-list" data-bind="style:{display:filterLocations()? 'block':'none'},css:locationsList">
+        <!-- ko foreach:filterLocations -->
+            <div class="location-item" data-bind="click:$parent.showDetails">
+                <div>
+                    <span data-bind="text:$index() + 1"></span>
+                    <span data-bind="text:name"></span>
+                    <span data-bind="text:rating"></span>
                 </div>
-            <!-- /ko -->
-            <p data-bind="visible:filterLocations().length == 0">没有符合条件的地点</p>
-        </div>
+                <p data-bind="text:address[0]"></p>
+            </div>
+        <!-- /ko -->
+    </div>
+    <div class="search-panel locations-notFound" data-bind="style:{display:currentFilter() && (filterLocations().length == 0)? 'block':'none'}">
+        <p>没有符合条件的地点</p>
     </div>
 
-    <div class="location-details" data-bind="with:currentLocation,click:hideDetails">
+
+    <!-- 地点详情 -->
+    <div class="location-details" data-bind="style:{display:currentLocation()? 'block':'none'},with:currentLocation">
+        <div class="location-details-close-icon" data-bind="click:$parent.hideDetails"><</div>
         <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
         <p><span data-bind="text:name"></span><span data-bind="text:rating"></span></p>
-        <p data-bind="visible:hours.isOpen,text:hours.status"></p>
-        <p data-bind="visible:!hours.isOpen,text: 'Close now!'"></p>
         <p data-bind="text:address"></p>
+        <div data-bind="visible:hours,with:hours">
+            <p data-bind="visible:isOpen,text:status"></p>
+            <p data-bind="visible:!isOpen,text: 'Close now!'"></p>
+        </div>
         <p data-bind="text:contact"></p>
         <p><a data-bind="attr: {href:url}"></a></p>
+        <p><button data-bind="click:">See in the map</button></p>
     </div>
 
-    <div id="map"></div>
 
     <script type="text/javascript" src="js/lib/knockout-3.4.1.js"></script>
     <script type="text/javascript" src="js/lib/string.fuzzy.js"></script>

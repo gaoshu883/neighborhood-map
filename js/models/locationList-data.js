@@ -39,7 +39,7 @@
         var _venue = item.venue;
         this.name = _venue.name;
         this.contact = _venue.contact.formattedPhone || null;
-        this.address = _venue.location.formattedAddress || null; // array
+        this.address = _venue.location.formattedAddress || []; // array
         this.geoLocation = {
             lat: _venue.location.lat || null,
             lng: _venue.location.lng || null
@@ -53,6 +53,6 @@
             suffix: _venue.photos.groups[0].items[0].suffix,
             visibility:_venue.photos.groups[0].items[0].visibility
         };
-        this.order = index + 1; // simple ID of fetched place
+        this.id = index; // simple ID of fetched place
     }
 })();

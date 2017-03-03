@@ -39,12 +39,12 @@ var app = app || {};
     // 默认为关闭状态
     self.detailsStatus = ko.observable(false);
 
-    // 地址搜索栏状态
-    // 默认为未关闭状态
-    self.sideBarStatus = ko.observable(false);
-
-    self.searchSideBar = ko.computed(function() {
-      return self.sideBarStatus() ? 'search-hide': 'search-show';
+    // 列表栏状态
+    // 默认为开启状态
+    self.listStatus = ko.observable(true);
+    // 若列表栏设置为开启，则滑出列表；否则滑走列表
+    self.locationsList = ko.computed(function() {
+      return self.listStatus() ? 'search-show': 'search-hide';
     });
 
     // 缓存被用户单击的地点
@@ -53,13 +53,15 @@ var app = app || {};
     // 如果从4sq获取的图片无法使用，则使用该占位图片
     self.imageHolder = "http://lorempixel.com/500/300";
 
-    // 显示当前选中地点的详情信息
-    // 如何实现：单击同一对象：关闭；单击另一对象：再次设置
+    // 显示详情信息，关闭列表，高亮marker
     self.showDetails = function() {
       self.currentLocation(this);
       self.detailsStatus(true);
 
-      // 实现：用户单击列表中的地点，相应的地点marker高亮
+      // 关闭列表
+      // self.listStatus(false);
+
+      // 高亮marker
       app.googleMap.toggleMarker();
     };
 
@@ -71,10 +73,10 @@ var app = app || {};
       app.googleMap.toggleMarker();
     };
 
-    // 切换地址搜索栏的开启状态
+    // 切换列表状态
     // 函数体中必须为`this`，改为`self`会出错
-    self.toggleSideBar = function() {
-      this.sideBarStatus() ? this.sideBarStatus(false) : this.sideBarStatus(true);
+    self.toggleList = function() {
+      this.listStatus() ? this.listStatus(false) : this.listStatus(true);
     };
   };
 

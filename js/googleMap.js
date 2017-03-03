@@ -6,7 +6,10 @@ var app = app || {};
     app.googleMap = {
         map: {},
         markers: [],
-        locations: null, // 初始化数据
+        // locations: null, // 初始化数据
+        selectedMarker: null, // 缓存被选中的marker
+        bounds: null, // 存储初始渲染的地图边界范围
+        largeInfoWindow: null, // 存储信息窗口对象
         // 异步请求google地图后的回调函数
         initMap: function() {
             'use strict';
@@ -48,9 +51,9 @@ var app = app || {};
         createMarkers: function() {
             var self = this;
             // 初始化信息窗口
-            var largeInfoWindow = new google.maps.InfoWindow();
+            this.largeInfoWindow = new google.maps.InfoWindow();
             // 自定义markers的样式
-            var defaultIcon = this.makeMarkerIcon('0091ff');
+            var defaultIcon = this.makeMarkerIcon('268bd2');
 
             // 当用户鼠标经过某个marker的时候，该marker高亮显示
             var highlightedIcon = this.makeMarkerIcon('ffff24');
@@ -60,23 +63,24 @@ var app = app || {};
             var _locations = app.viewModel.locationList();
             for (var i = 0; i < _locations.length; i++) {
                 var markerOptions = {
-                    position: _locations[i].geoLocation,
-                    title: _locations[i].name,
-                    icon: defaultIcon,
-                    animation:google.maps.Animation.DROP,
-                    id: _locations[i].id
-                }
-                // 为每一个地点创建一个marker
-                // marker和location拥有相同的ID
+                        position: _locations[i].geoLocation,
+                        address: _locations[i].address[0] || '',
+                        title: _locations[i].name,
+                        icon: defaultIcon, // image
+                        animation: google.maps.Animation.DROP,
+                        id: _locations[i].id
+                    }
+                    // 为每一个地点创建一个marker
+                    // marker和location拥有相同的ID
                 var marker = new google.maps.Marker(markerOptions);
                 // 把创建好的marker放到markers数组中缓存
                 this.markers.push(marker);
 
                 // 为每一个marker注册一个单击事件处理程序
                 marker.addListener('click', function() {
-                    console.log('信息窗口被创建了');
+                    // console.log('信息窗口被创建了');
                     // 为每一个marker添加一个信息窗口
-                    self.populateInfoWindow(this, largeInfoWindow);
+                    self.populateInfoWindow(this, self.largeInfoWindow);
                 });
                 // 为每一个marker注册两个鼠标事件监听程序
                 marker.addListener('mouseover', function() {
@@ -90,7 +94,7 @@ var app = app || {};
         // 函数：适应视口地`渲染`所有markers
         showMarkers: function() {
             // 初始化地图边界
-            var bounds = new google.maps.LatLngBounds();
+            this.bounds = new google.maps.LatLngBounds();
             // 下面的私有变量不能拿出去，也许和google map本身的架构有关
             var _markers = app.googleMap.markers;
             var _map = app.googleMap.map;
@@ -113,59 +117,81 @@ var app = app || {};
                 });
             });
 
-            // 当没有满足条件的地点时，清楚所有标记
             for (var i = 0, len = _markers.length; i < len; i++) {
                 if (len === 0) {
+                    // 当没有满足条件的地点时，清除所有标记
                     _markers[i].setMap(null);
                 } else {
                     // 指定marker渲染所在地图
                     _markers[i].setMap(_map);
+                    // 每个marker显示一个编号
+                    _markers[i].setLabel({
+                        fontSize: '12',
+                        text: (i + 1).toString()
+                    });
                     // 把每一个标记纳入边界内
-                    bounds.extend(_markers[i].position);
+                    this.bounds.extend(_markers[i].position);
                     // 让地图适应边界显示
-                    _map.fitBounds(bounds);
+                    _map.fitBounds(this.bounds);
                 }
             }
         },
-        // 功能：当用户点击列表中的地点时，高亮显示对象的marker
+        // 功能：当用户点击列表中的地点时，高亮显示对象的marker，map中心切换
         // 这里仅有event handler
         // 在list - view model 中监听调用
         toggleMarker: function() {
-          var _markers = app.googleMap.markers;
-            for (var i = 0; i < _markers.length; i++) {
-                //
-                _markers[i].setIcon(this.makeMarkerIcon('0091ff'));
-            }
-            if (!!app.viewModel.currentLocation()) {
-                var selectedMarker = _markers.filter(function(ele) {
-                    return ele.id == app.viewModel.currentLocation().id;
-                });
+            // cache data
+            var _markers = this.markers;
+
+            if (app.viewModel.currentLocation()) {
+                this.selectedMarker = _markers[app.viewModel.currentLocation().id];
                 // console.log(selectedMarker);
-                selectedMarker[0].setIcon(this.makeMarkerIcon('ffff24'));
+                this.selectedMarker.setIcon(this.makeMarkerIcon('ffff24'));
+                // change center of map to this marker
+                // this.map.panTo(this.selectedMarker.position);
+                // 地图重新渲染边界
+                var _bounds = new google.maps.LatLngBounds(this.selectedMarker.position);
+                this.map.fitBounds(_bounds);
+                // 显示信息窗口
+                this.populateInfoWindow(this.selectedMarker, this.largeInfoWindow);
+
+            } else {
+                this.selectedMarker.setIcon(this.makeMarkerIcon('268bd2'));
+                // 当用户关闭详情框，地图恢复原貌，并更改中心
+                this.map.fitBounds(this.bounds);
+                this.map.panTo(this.selectedMarker.position);
+                this.selectedMarker = null;
+                // 关闭信息窗口
+                // this.largeInfoWindow.setMarker(null);
             }
         },
         // 点击marker时，显示信息窗口
         populateInfoWindow: function(marker, infoWindow) {
-            // 先检查一下当前marker是否已经打开过窗口了
+            // 先检查一下当前marker是否已经有窗口打开
             if (infoWindow.marker !== marker) {
                 infoWindow.marker = marker;
-                infoWindow.setContent('<div>' + marker.title + '</div>');
+                infoWindow.setOptions({
+                    content:'<div style="font:16px/1.5 sans-serif"><div>' + marker.title + '</div>' +
+                        '<div style="font-size:12px">' + marker.address + '</div>' +
+                        '<div style="font-weight: bold;cursor:pointer;color:#268bd2">Location details</div></div>',
+                    maxWidth:250
+                });
                 infoWindow.addListener('closeClick', function() {
                     infoWindow.setMarker(null);
                 });
-
-                infoWindow.open(app.googleMap.map, marker);
             }
+            infoWindow.open(app.googleMap.map, marker);
         },
         // 自定义marker样式
         makeMarkerIcon: function(markerColor) {
             var image = {
-                url: 'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor +
-                    '|40|_|%E2%80%A2',
+                url: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=|' + markerColor +
+                    '|ffffff',
                 size: new google.maps.Size(21, 34),
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(10, 34),
-                scaledSize: new google.maps.Size(21, 34)
+                scaledSize: new google.maps.Size(21, 34),
+                labelOrigin: new google.maps.Point(11, 11)
             };
             return image;
         }
