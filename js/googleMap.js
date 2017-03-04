@@ -151,18 +151,34 @@ var app = app || {};
                 // this.map.panTo(this.selectedMarker.position);
                 // 地图重新渲染边界
                 var _bounds = new google.maps.LatLngBounds(this.selectedMarker.position);
+
+                // 调整地图边界
+                // http://stackoverflow.com/questions/3334729/google-maps-v3-fitbounds-zoom-too-close-for-single-marker/5345708#5345708
+                // 手机端还没有测试
+                if (_bounds.getNorthEast().equals(_bounds.getSouthWest())) {
+                   var extendPoint = new google.maps.LatLng(_bounds.getNorthEast().lat() + 0.001, _bounds.getNorthEast().lng() + 0.001);
+                   _bounds.extend(extendPoint);
+                }
+
                 this.map.fitBounds(_bounds);
+                this.map.panTo(this.selectedMarker.position);
+                //
+                // var listener = google.maps.event.addListener(map, "idle", function() {
+                //   if (map.getZoom() > 8) map.setZoom(8);
+                //   google.maps.event.removeListener(listener);
+                // });
                 // 显示信息窗口
                 this.populateInfoWindow(this.selectedMarker, this.largeInfoWindow);
 
             } else {
+                // console.log(this.largeInfoWindow);
                 this.selectedMarker.setIcon(this.makeMarkerIcon('268bd2'));
-                // 当用户关闭详情框，地图恢复原貌，并更改中心
+                // 当用户关闭详情框，地图恢复原貌
                 this.map.fitBounds(this.bounds);
-                this.map.panTo(this.selectedMarker.position);
-                this.selectedMarker = null;
+                // this.map.panTo(this.selectedMarker.position);
                 // 关闭信息窗口
-                // this.largeInfoWindow.setMarker(null);
+                this.largeInfoWindow.close();
+                this.selectedMarker = null;
             }
         },
         // 点击marker时，显示信息窗口
@@ -177,7 +193,7 @@ var app = app || {};
                     maxWidth:250
                 });
                 infoWindow.addListener('closeClick', function() {
-                    infoWindow.setMarker(null);
+                    infoWindow.close();
                 });
             }
             infoWindow.open(app.googleMap.map, marker);

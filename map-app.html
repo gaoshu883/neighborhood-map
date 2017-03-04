@@ -14,13 +14,13 @@
     <!-- 搜索条 -->
     <div class="search-panel search-bar">
       <!-- 消除inline-block元素之间的间距 -->
-        <span class="toggle-list" data-bind="click:toggleList">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter"><span class="search-btn">Filter</span>
+        <span class="toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter"><span class="search-btn">Filter</span>
     </div>
     <!-- 满足过滤条件的地点列表 -->
     <!-- 当筛选出地点才会显示 -->
-    <div class="search-panel locations-list" data-bind="style:{display:filterLocations()? 'block':'none'},css:locationsList">
+    <div class="search-panel locations-list" data-bind="style:{display:isToToggle()&&filterLocations()? 'block':'none'},css:locationsList">
         <!-- ko foreach:filterLocations -->
-            <div class="location-item" data-bind="click:$parent.showDetails">
+            <div class="location-item" data-bind="click:$parent.toggleDetails">
                 <div>
                     <span data-bind="text:$index() + 1"></span>
                     <span data-bind="text:name"></span>
@@ -31,13 +31,13 @@
         <!-- /ko -->
     </div>
     <div class="search-panel locations-notFound" data-bind="style:{display:currentFilter() && (filterLocations().length == 0)? 'block':'none'}">
-        <p>没有符合条件的地点</p>
+        <p>Not Found</p>
     </div>
 
 
     <!-- 地点详情 -->
-    <div class="location-details" data-bind="style:{display:currentLocation()? 'block':'none'},with:currentLocation">
-        <div class="location-details-close-icon" data-bind="click:$parent.hideDetails"><</div>
+    <div class="location-details" data-bind="style:{display:isToToggle()&&currentLocation()? 'block':'none'},with:currentLocation">
+        <div class="location-details-close-icon" data-bind="click:$parent.toggleDetails"><</div>
         <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
         <p><span data-bind="text:name"></span><span data-bind="text:rating"></span></p>
         <p data-bind="text:address"></p>
@@ -47,7 +47,7 @@
         </div>
         <p data-bind="text:contact"></p>
         <p><a data-bind="attr: {href:url}"></a></p>
-        <p><button data-bind="click:">See in the map</button></p>
+        <p class="show-map-btn"><button data-bind="click:$parent.toggleMap">See in the map</button></p>
     </div>
 
 
