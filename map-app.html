@@ -16,11 +16,11 @@
       <!-- 消除inline-block元素之间的间距 -->
         <span class="toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter"><span class="search-btn">Filter</span>
     </div>
-    <!-- 满足过滤条件的地点列表 -->
-    <!-- 当筛选出地点才会显示 -->
-    <div class="search-panel locations-list" data-bind="style:{display:isToToggle()&&filterLocations()? 'block':'none'},css:locationsList">
+    <!-- 地点列表 -->
+    <!-- 列表存在性判断:map不显示并且存在筛选出的地点 -->
+    <div class="search-panel locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations()? 'block':'none'},css:locationsList">
         <!-- ko foreach:filterLocations -->
-            <div class="location-item" data-bind="click:$parent.toggleDetails">
+            <div class="location-item" data-bind="click:$parent.showDetails">
                 <div>
                     <span data-bind="text:$index() + 1"></span>
                     <span data-bind="text:name"></span>
@@ -36,8 +36,8 @@
 
 
     <!-- 地点详情 -->
-    <div class="location-details" data-bind="style:{display:isToToggle()&&currentLocation()? 'block':'none'},with:currentLocation">
-        <div class="location-details-close-icon" data-bind="click:$parent.toggleDetails"><</div>
+    <div id="locationDetails" class="location-details" data-bind="style:{display:detailsStatus()&&!listStatus()&&!mapStatus()&&currentLocation()? 'block':'none'},with:currentLocation">
+        <div class="location-details-close-icon" data-bind="click:$parent.hideDetails"><</div>
         <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
         <p><span data-bind="text:name"></span><span data-bind="text:rating"></span></p>
         <p data-bind="text:address"></p>
@@ -47,7 +47,7 @@
         </div>
         <p data-bind="text:contact"></p>
         <p><a data-bind="attr: {href:url}"></a></p>
-        <p class="show-map-btn"><button data-bind="click:$parent.toggleMap">See in the map</button></p>
+        <p class="show-map-btn"><button data-bind="click:$parent.showMap">See in the map</button></p>
     </div>
 
 

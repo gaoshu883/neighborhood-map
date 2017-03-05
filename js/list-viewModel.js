@@ -41,22 +41,18 @@ var app = app || {};
     self.locationsList = ko.computed(function() {
       return self.listStatus() ? 'search-show': 'search-hide';
     });
-    // 切换列表状态
+    // 切换1：切换列表状态
+    // 此toggle list切换只限于list移出和移入
     // 函数体中必须为`this`，改为`self`会出错
     self.toggleList = function() {
-      this.listStatus() ? this.listStatus(false) : this.listStatus(true);
-      self.toToggleMap(true);
+      // 重置details map状态
+      // 必须保证deteails、see-in-map状态不显示
+      self.detailsStatus(false);
+      self.mapStatus(false);
+      // 根据list当前状态进行切换
+      this.listStatus() ? self.listStatus(false): this.listStatus(true);
     };
-    // 根据不用的显示，切换菜单文本
-    self.toggleMenuText = ko.computed(function() {
-      if(!self.toToggleMap()) {
-        return '<';
-      } else if(self.listStatus()) {
-        return 'Map';
-      } else {
-        return 'List';
-      }
-    });
+
 
     // 缓存被用户单击的地点
     self.currentLocation = ko.observable();
@@ -67,54 +63,68 @@ var app = app || {};
     // 地点详情窗口状态
     // 默认为关闭状态
     self.detailsStatus = ko.observable(false);
+    // 是谁触发详情窗口的开启
+    self.whoTriggerDetails = null;
 
-    // toggle status of location details panel
-    self.toggleDetails = function() {
-      if(self.detailsStatus()) {
-        // hide location details
-        self.currentLocation(null);
-        // 实现：用户取消详情窗口时，相应的地点marker恢复默认
-        // self.toToggleMap(true);
-        app.googleMap.toggleMarker();
-        self.detailsStatus(false);
-      } else {
-        // show location details
-        self.currentLocation(this);
-        // self.toToggleMap(false);
-        // 高亮marker
-        app.googleMap.toggleMarker();
-        self.detailsStatus(true);
+    // 切换2：show location details panel
+    // 移动端、电脑端均可实现
+    // 实现：设置当前地点
+    //       显示信息窗口
+    //       显示地点详情
+    self.showDetails = function(data) {
+      // console.table(data);
+      // console.log(obj);
+      // console.log(data !== self.currentLocation());
+      // 2. 显示地点详情
+      self.detailsStatus(true);
+      // 重置map list状态为false
+      self.mapStatus(false);
+      self.listStatus(false);
+      // 传进来的数据就是当前地点对象
+      // 先判断当前地点是否已经显示
+      // 未显示，则显示
+      if (data !== self.currentLocation()) {
+        // 1. 设置当前地点
+        self.currentLocation(data);
+        app.googleMap.currentLocation = data;
+        // 当前地点的ID为data.id
+        // 3. 显示信息窗口
+        app.googleMap.toggleMarker(data.id);
       }
+      // 把data传递给hideDetails
+      self.whoTriggerDetails = data;
+      // console.log(data);
     };
-
-    // 是否切换为map
-    self.toToggleMap= ko.observable(true);
-    // 切换为map
-    self.toggleMap = function() {
+    // 切换3：hide location details panel
+    // 实现后退功能
+    // 仅移动端实现
+    self.hideDetails = function() {
+      // 重置map list状态为false
+      // self.mapStatus(false);
+      if (Object.prototype.toString.call(self.whoTriggerDetails) === '[object Object]') {
+        self.listStatus(true);
+      }
 
       self.detailsStatus(false);
-
-      self.toToggleMap(false);
-
-      self.listStatus(false);
     };
 
-    // 显示详情信息，关闭列表，高亮marker
-    // self.showDetails = function() {
-    //   self.detailsStatus(true);
-    //   self.currentLocation(this);
-    //   self.toToggleMap(true);
-    //   // 高亮marker
-    //   app.googleMap.toggleMarker();
-    // };
+    // map默认不显示
+    self.mapStatus= ko.observable(false);
+    // 切换为map
+    // 切换4：仅移动端 实现map显示
+    self.showMap = function() {
+      // 保证list和details都不存在
+      self.mapStatus(true);
+    };
 
-    // 隐藏地点详情信息窗口
-    // self.hideDetails = function() {
-    //   self.currentLocation(null);
-    //   self.detailsStatus(false);
-    //   // 实现：用户取消详情窗口时，相应的地点marker恢复默认
-    //   app.googleMap.toggleMarker();
-    // };
+    // 根据不用的显示，切换菜单文本
+    self.toggleMenuText = ko.computed(function() {
+      if(!self.mapStatus() && self.listStatus()) {
+        return 'Map';
+      } else {
+        return 'List';
+      }
+    });
 
   };
 

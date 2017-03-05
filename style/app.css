@@ -104,6 +104,7 @@ label {
 @media screen and (min-width: 400px) {
     .location-details {
         width: 400px;
+        height: calc(100% - 3.5rem);
     }
 }
 
@@ -117,6 +118,11 @@ label {
     line-height: 3rem;
     text-align: center;
     cursor: pointer;
+}
+@media screen and (min-width: 400px) {
+    .location-details-close-icon {
+        display: none;
+    }
 }
 
 .location-img {
@@ -140,3 +146,4 @@ label {
         display: none;
     }
 }
+
