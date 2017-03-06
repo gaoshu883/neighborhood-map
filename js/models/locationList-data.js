@@ -22,14 +22,6 @@
             venues.forEach(function(item,index) {
                 app.viewModel.locationList.push(new Location(item,index));
             });
-
-            // var categoryArr = [];
-            // app.viewModel.locationList().forEach(function(item) {
-            //     if(categoryArr.indexOf(item.category) === -1) {
-            //         categoryArr.push(item.category);
-            //     }
-            // });
-            // console.log(categoryArr);
             // 创建所有地点的markers
             app.googleMap.createMarkers();
             // 初始化渲染所有的markers

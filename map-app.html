@@ -14,11 +14,16 @@
     <!-- 搜索条 -->
     <div class="search-panel search-bar">
       <!-- 消除inline-block元素之间的间距 -->
-        <span class="toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter"><span class="search-btn">Filter</span>
+        <span class="search-panel-btn toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</span><label for="searchBox">Enter your favorite location:</label><input class="search-box" id="searchBox" data-bind="value:currentFilter().name"><span class="fontawesome-search search-panel-btn search-btn"></span><span class="fontawesome-filter search-panel-btn filter-list" data-bind="click:toggleFilter"></span>
+        <!-- 这里显示所有的类别 -->
+        <!-- 向下效果滑出 -->
+        <div class="category-list" data-bind="style:{display:filterStatus() ? 'block':'none'},foreach:categoryList">
+            <span class="category-name" data-bind="text:name,event:{click:$parent.setCurrentFilter}"></span>
+        </div>
     </div>
     <!-- 地点列表 -->
     <!-- 列表存在性判断:map不显示并且存在筛选出的地点 -->
-    <div class="search-panel locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations()? 'block':'none'},css:locationsList">
+    <div class="search-panel locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations()? 'block':'none'},css:listCSS">
         <!-- ko foreach:filterLocations -->
             <div class="location-item" data-bind="click:$parent.showDetails">
                 <div>
@@ -37,9 +42,10 @@
 
     <!-- 地点详情 -->
     <div id="locationDetails" class="location-details" data-bind="style:{display:detailsStatus()&&!listStatus()&&!mapStatus()&&currentLocation()? 'block':'none'},with:currentLocation">
-        <div class="location-details-close-icon" data-bind="click:$parent.hideDetails"><</div>
+        <div class="fontawesome-angle-left location-details-close-icon" data-bind="click:$parent.hideDetails"></div>
         <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
         <p><span data-bind="text:name"></span><span data-bind="text:rating"></span></p>
+        <p data-bind="text:category"></p>
         <p data-bind="text:address"></p>
         <div data-bind="visible:hours,with:hours">
             <p data-bind="visible:isOpen,text:status"></p>

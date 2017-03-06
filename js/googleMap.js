@@ -46,6 +46,7 @@ var app = app || {};
             document.getElementById('searchBox').addEventListener('change', function() {
                 self.showMarkers();
             });
+
         },
         // 为所有地点创建markers
         createMarkers: function() {
@@ -65,6 +66,7 @@ var app = app || {};
                 var markerOptions = {
                         position: _locations[i].geoLocation,
                         address: _locations[i].address[0] || '',
+                        category: _locations[i].category || '',
                         title: _locations[i].name,
                         icon: defaultIcon, // image
                         animation: google.maps.Animation.DROP,
@@ -109,22 +111,23 @@ var app = app || {};
         },
         // 函数：适应视口地`渲染`所有markers
         showMarkers: function() {
-            // 初始化地图边界
-            this.bounds = new google.maps.LatLngBounds();
+
+            if (!this.bounds) {
+                // 初始化地图边界
+                this.bounds = new google.maps.LatLngBounds();
+            }
             // 下面的私有变量不能拿出去，也许和google map本身的架构有关
             var _markers = app.googleMap.markers;
             var _map = app.googleMap.map;
 
             // 满足筛选条件的地点
             var _locations = app.viewModel.filterLocations();
-            // console.log('我在这里');
 
             // 清空所有的标记
             for (var i = 0; i < _markers.length; i++) {
                 // 隐藏markers
                 _markers[i].setMap(null);
             }
-
 
             // 过滤markers
             _markers = _markers.filter(function(val) {
@@ -133,11 +136,11 @@ var app = app || {};
                 });
             });
 
-            for (var i = 0, len = _markers.length; i < len; i++) {
-                if (len === 0) {
-                    // 当没有满足条件的地点时，清除所有标记
-                    _markers[i].setMap(null);
-                } else {
+            var len = _markers.length;
+            if (len === 0) {
+                return;
+            } else {
+                for (var i = 0; i < len; i++) {
                     // 指定marker渲染所在地图
                     _markers[i].setMap(_map);
                     // 每个marker显示一个编号
@@ -145,10 +148,15 @@ var app = app || {};
                         fontSize: '12',
                         text: (i + 1).toString()
                     });
-                    // 把每一个标记纳入边界内
-                    this.bounds.extend(_markers[i].position);
-                    // 让地图适应边界显示
-                    _map.fitBounds(this.bounds);
+                }
+                if (this.bounds.isEmpty()) {
+                    for (var i = 0; i < len; i++) {
+                        // 把每一个标记纳入边界内
+                        this.bounds.extend(_markers[i].position);
+                        // 让地图适应边界显示
+                        _map.fitBounds(this.bounds);
+                        // console.log(this.bounds);
+                    }
                 }
             }
         },
@@ -162,6 +170,11 @@ var app = app || {};
                 // 用户选中的地点marker
                 // 保证一次只会选中一个地点
                 this.selectedMarker = this.markers[id];
+                // 高亮显示marker
+                this.selectedMarker.setIcon(this.makeMarkerIcon('ffff24'));
+                // 显示信息窗口
+                this.showInfoWindow(this.selectedMarker, this.largeInfoWindow);
+            } else if (!this.largeInfoWindow.getMap()) {
                 // 高亮显示marker
                 this.selectedMarker.setIcon(this.makeMarkerIcon('ffff24'));
                 // 显示信息窗口
@@ -181,6 +194,7 @@ var app = app || {};
                 infoWindow.marker = marker;
                 infoWindow.setOptions({
                     content: '<div style="font:16px/1.5 sans-serif"><div>' + marker.title + '</div>' +
+                        '<div style="font-size:12px;color:#ff7f27">' + marker.category + '</div>' +
                         '<div style="font-size:12px">' + marker.address + '</div>' +
                         '<div id="infoWindow" style="font-weight: bold;cursor:pointer;color:#268bd2" onclick="app.googleMap.showDetails(this)">Location details</div></div>',
                     maxWidth: 250

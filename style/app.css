@@ -1,3 +1,8 @@
+@import url(http://weloveiconfonts.com/api/?family=fontawesome);
+/* fontawesome */
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
 html,
 body {
     height: 100%;
@@ -33,37 +38,64 @@ body {
     text-align: center;
     box-shadow: 0 2px 5px rgba(85, 85, 85, 0.42);
     background: rgba(255,255,255,1);
+    transition: height 1s ease;
+    z-index: 2;
+}
+@media screen and (min-width: 400px) {
+    .search-bar {
+        z-index: 4;
+    }
 }
 
 .search-box {
-    width: 70%;
+    padding: 0 0.5rem;
+    width: 55%;
     height: 1.5rem;
     border: none;
     border-radius: 3px;
     background: rgba(38, 139, 210, 0.52);
 }
 
-.search-btn {
-    display: inline-block;
-    width: 15%;
-    height: 1.5rem;
-    border: none;
-    background: none;
-    font-size: 1rem;
-    color: #268bd2;
-    cursor: pointer;
-}
-
 label {
     display: none;
 }
 
-.toggle-list {
+.search-panel-btn {
     display: inline-block;
-    width: 15%;
-    height: 1.5rem;
     vertical-align: bottom;
     color: #268bd2;
+    cursor: pointer;
+}
+
+.search-btn {
+    width: 15%;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+}
+
+.filter-list {
+    width: 15%;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+}
+
+.toggle-list {
+    width: 15%;
+    height: 1.5rem;
+}
+
+.category-list {
+    display: none; /*起始状态为关闭*/
+    margin-top: 1rem;
+    padding-top: 1rem;
+    line-height: 1.5rem;
+}
+
+.category-name {
+    display: inline-block;
+    margin: 5px;
+    padding: 2px;
+    border: 1px solid #ff7f27;
     cursor: pointer;
 }
 
@@ -76,6 +108,12 @@ label {
     overflow-y: auto;
     will-change:transform;
     transition: transform 1s ease;
+    z-index: 1;
+}
+@media screen and (min-width: 400px) {
+    .locations-list {
+
+    }
 }
 
 .locations-notFound {
@@ -100,6 +138,7 @@ label {
     background: #268bd2;
     will-change:transform;
     transition: transform 1s ease;
+    z-index: 3;
 }
 @media screen and (min-width: 400px) {
     .location-details {
@@ -114,7 +153,7 @@ label {
     left: 0;
     width: 3rem;
     color: #fff;
-    /*font-size: 1.5rem;*/
+    font-size: 2rem;
     line-height: 3rem;
     text-align: center;
     cursor: pointer;
