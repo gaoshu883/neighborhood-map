@@ -42,13 +42,25 @@ var app = app || {};
 
             console.log(self.isMobile);
 
-            // 监听搜索框的change事件，更新标记
+            // 监听搜索框的change事件
+            // 重置状态
+            // 更新标记
             document.getElementById('searchBox').addEventListener('change', function() {
+                // 重置状态：关闭信息窗口 恢复默认颜色
+                console.log('我监听到change事件');
+                if (self.selectedMarker) {
+                    if (self.largeInfoWindow && self.largeInfoWindow.getMap()) {
+                        self.largeInfoWindow.close();
+                    }
+                    self.selectedMarker.setIcon(self.makeMarkerIcon('268bd2'));
+                }
                 self.showMarkers();
             });
 
         },
-        // 为所有地点创建markers
+        // 功能：创建markers
+        // 1. 当city更新后创建所有sights地点markers
+        // 2.
         createMarkers: function() {
             var self = this;
             // 初始化信息窗口
@@ -78,16 +90,18 @@ var app = app || {};
                 // 把创建好的marker放到markers数组中缓存
                 this.markers.push(marker);
 
+                // 用户交互键
                 // 点击marker
-                // 实现：设置当前地点
-                //       显示信息窗口
-                //       显示地点详情
-                //       将当前marker设置为选中状态
+                // 实现：
+                // 1. 设置当前地点（隐式，无需关闭）
+                // 2. 将当前marker设置为目标 （隐式，无需关闭）
+                // 5. 高亮marker （显式，需要关闭）
+                // 3. 显示信息窗口 （显式，需要关闭）
+                // 4. 显示地点详情 （显式，需要关闭）
                 marker.addListener('click', function() {
                     // 1. 设置当前地点
                     self.currentLocation = _locations[this.id];
-                    // console.log(self.currentLocation);
-                    // 2. 将当前marker设置为选中状态
+                    // 2. 将当前marker设置为目标
                     self.selectedMarker = this;
                     // 3. 显示信息窗口
                     self.showInfoWindow(this, self.largeInfoWindow);
@@ -101,6 +115,7 @@ var app = app || {};
 
                 });
                 // 为每一个marker注册两个鼠标事件监听程序
+                // 电脑端有效
                 marker.addListener('mouseover', function() {
                     this.setIcon(highlightedIcon);
                 });
@@ -109,9 +124,14 @@ var app = app || {};
                 })
             }
         },
-        // 函数：适应视口地`渲染`所有markers
+        // 函数：`渲染`所有markers
+        // 实现：
+        // 1. 首次渲染marker
+        // 2. 确定地图边界，无特殊情况，边界不重复渲染
+        // 3. 用户筛选后，重新渲染marker
         showMarkers: function() {
-
+            // 只有当值为null falsy
+            // 存储边界对象后  trusy
             if (!this.bounds) {
                 // 初始化地图边界
                 this.bounds = new google.maps.LatLngBounds();
@@ -129,7 +149,7 @@ var app = app || {};
                 _markers[i].setMap(null);
             }
 
-            // 过滤markers
+            // 根据地点id过滤markers
             _markers = _markers.filter(function(val) {
                 return _locations.some(function(ele) {
                     return ele.id == val.id;

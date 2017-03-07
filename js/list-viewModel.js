@@ -20,26 +20,41 @@ var app = app || {};
             id: ko.observableArray()
         });
 
-        // 过滤地点数组
-        // http://stackoverflow.com/questions/20857594/knockout-filtering-on-observable-array
+        // 筛选地点
         self.filterLocations = ko.computed(function() {
-            if (!self.currentFilter().name()) {
+            // 若用户输入内容
+            // 将用户输入的内容转换成字符串数组
+            // 并排除所有的空字符串
+            // name初始值为了undefined, falsy
+            // 数组类型的boolean始终为true
+            if (!self.currentFilter().name() || self.currentFilter().name().split(' ').filter(Boolean).length === 0) {
                 // there is no filter string
                 return self.locationList();
-            } else if (self.currentFilter().id()) {
-                // data是category对象
+            } else if (self.currentFilter().id() == true) {
+                // 筛选1：点击类别名称进行筛选
+                // 每个类别下对应不同的地点，以id存储
+                // 所以可以直接按id进行检索筛选
                 var _temArr = [];
-                // console.log(data);
                 self.currentFilter().id().forEach(function(item) {
                     _temArr.push(self.locationList()[item]);
                 });
                 return _temArr;
             } else {
-                // debugger;
+                // 筛选2：直接输入筛选
+                // 使用了ko提供的数组筛选方法，类似ES5 的filter方法
+                // http://stackoverflow.com/questions/20857594/knockout-filtering-on-observable-array
+                // 筛选条件判断为true 则返回对应的location item
                 return ko.utils.arrayFilter(self.locationList(), function(item) {
-                    // 模糊搜索算法 `fuzzy`
-                    return item.type.some(function(prop) {
-                        return self.currentFilter().toLowerCase().fuzzy(prop.toLowerCase());
+                    // debugger;
+                    // 使用模糊搜索算法 `fuzzy`
+                    // 将用户输入的字符串与地点的名称和类别进行比对筛选
+                    // 为了提高匹配准确度，把地点名称和类别字符串全部拆分
+                    // 并合并为一个字符串数组，同时排除掉空字符串
+                    // 只要用户输入的字符串数组中有一个元素
+                    // 与地点字符串数组中的一个元素匹配上，则返回true
+                    var _temArr = (item.name.split(' ').concat(item.category.split(' '))).filter(Boolean);
+                    return _temArr.some(function(prop) {
+                        return prop.fuzzy(self.currentFilter().name());
                     });
                 });
             }

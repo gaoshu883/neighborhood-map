@@ -38,16 +38,16 @@
     function Location(item,index) {
         var _venue = item.venue;
         this.name = _venue.name;
-        this.contact = _venue.contact.formattedPhone || null;
+        this.contact = _venue.contact.formattedPhone || '';
         this.address = _venue.location.formattedAddress || []; // array
         this.geoLocation = {
             lat: _venue.location.lat || null,
             lng: _venue.location.lng || null
         }; // object
         this.rating = _venue.rating || null;
-        this.url = _venue.url || null;
+        this.url = _venue.url || '';
         this.hours = _venue.hours || null; // object
-        this.category = _venue.categories[0].name || null; // string
+        this.category = _venue.categories[0].name || ''; // string
         this.photo = {
             prefix: _venue.photos.groups[0].items[0].prefix,
             suffix: _venue.photos.groups[0].items[0].suffix,
