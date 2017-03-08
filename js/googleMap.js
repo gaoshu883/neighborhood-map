@@ -7,7 +7,8 @@ var app = app || {};
         map: {},
         markers: [],
         currentLocation: null, // 点击marker选中某地点
-        selectedMarker: null, // 缓存被选中的marker(直接点击marker；点击地点列表)
+        currentMarker: null, // 缓存被选中的marker(直接点击marker；点击地点列表)
+        activatedMarker: false, // 表明marker状态
         bounds: null, // 存储初始渲染的地图边界范围
         largeInfoWindow: null, // 存储信息窗口对象
         isMobile: false, // 当前是否为移动版
@@ -33,37 +34,28 @@ var app = app || {};
             });
 
             // 判断使用的是否为移动设备
+            // 横屏：电脑
+            // 竖屏：移动端
             self.isMobile = window.innerHeight > window.innerWidth ? true : false;
             // 当用户更改了设备方向
+            // 重新判断设备类型
             window.addEventListener('resize',
                 function() {
                     self.isMobile = window.innerHeight > window.innerWidth ? true : false;
                 }, false);
 
-            console.log(self.isMobile);
-
-            // 监听搜索框的change事件
-            // 重置状态
-            // 更新标记
-            document.getElementById('searchBox').addEventListener('change', function() {
-                // 重置状态：关闭信息窗口 恢复默认颜色
-                console.log('我监听到change事件');
-                if (self.selectedMarker) {
-                    if (self.largeInfoWindow && self.largeInfoWindow.getMap()) {
-                        self.largeInfoWindow.close();
-                    }
-                    self.selectedMarker.setIcon(self.makeMarkerIcon('268bd2'));
-                }
-                self.showMarkers();
-            });
-
         },
-        // 功能：创建markers
-        // 1. 当city更新后创建所有sights地点markers
-        // 2.
+        // 功能：创建所有sights地点markers
+        // 触发条件：
+        // 1. app首次渲染
+        // 2. 用户更新city
+        // 注意：
+        // 1. markers重置
+        // 2. largeInfoWindow重置
+        // 3. bounds重置
         createMarkers: function() {
             var self = this;
-            // 初始化信息窗口
+            // 初始化信息窗口 // 重写
             this.largeInfoWindow = new google.maps.InfoWindow();
             // 自定义markers的样式
             var defaultIcon = this.makeMarkerIcon('268bd2');
@@ -95,6 +87,7 @@ var app = app || {};
                 // 实现：
                 // 1. 设置当前地点（隐式，无需关闭）
                 // 2. 将当前marker设置为目标 （隐式，无需关闭）
+                // 6. marker为激活状态
                 // 5. 高亮marker （显式，需要关闭）
                 // 3. 显示信息窗口 （显式，需要关闭）
                 // 4. 显示地点详情 （显式，需要关闭）
@@ -102,17 +95,14 @@ var app = app || {};
                     // 1. 设置当前地点
                     self.currentLocation = _locations[this.id];
                     // 2. 将当前marker设置为目标
-                    self.selectedMarker = this;
-                    // 3. 显示信息窗口
-                    self.showInfoWindow(this, self.largeInfoWindow);
+                    self.currentMarker = this;
+                    // 3. 显示marker信息
+                    self.showMarkerInfo(this, self.largeInfoWindow);
                     // 4. 显示地点详情
                     // 移动端不显示
                     if (!self.isMobile) {
                         self.showDetails();
                     }
-                    // 5. 高亮marker
-                    self.selectedMarker.setIcon(highlightedIcon);
-
                 });
                 // 为每一个marker注册两个鼠标事件监听程序
                 // 电脑端有效
@@ -123,34 +113,41 @@ var app = app || {};
                     this.setIcon(defaultIcon);
                 })
             }
+            // 地图边界默认无
+            this.bounds = null;
+
         },
         // 函数：`渲染`所有markers
         // 实现：
         // 1. 首次渲染marker
-        // 2. 确定地图边界，无特殊情况，边界不重复渲染
-        // 3. 用户筛选后，重新渲染marker
+        // 2. 根据locationList确定地图边界，无特殊情况，边界不重复渲染
+        // 3. 用户筛选后：
+        //               重新渲染markers
+        // 此部分和信息窗口 marker颜色无关
         showMarkers: function() {
-            // 只有当值为null falsy
-            // 存储边界对象后  trusy
+            //
             if (!this.bounds) {
                 // 初始化地图边界
                 this.bounds = new google.maps.LatLngBounds();
+                for (var i = 0, len = this.markers.length; i < len; i++) {
+                    // 把每一个标记纳入边界内
+                    this.bounds.extend(this.markers[i].position);
+                }
+                // 让地图适应边界显示
+                this.map.fitBounds(this.bounds);
             }
-            // 下面的私有变量不能拿出去，也许和google map本身的架构有关
-            var _markers = app.googleMap.markers;
-            var _map = app.googleMap.map;
 
             // 满足筛选条件的地点
             var _locations = app.viewModel.filterLocations();
 
             // 清空所有的标记
-            for (var i = 0; i < _markers.length; i++) {
+            for (var i = 0; i < this.markers.length; i++) {
                 // 隐藏markers
-                _markers[i].setMap(null);
+                this.markers[i].setMap(null);
             }
 
             // 根据地点id过滤markers
-            _markers = _markers.filter(function(val) {
+            var _markers = this.markers.filter(function(val) {
                 return _locations.some(function(ele) {
                     return ele.id == val.id;
                 });
@@ -162,56 +159,64 @@ var app = app || {};
             } else {
                 for (var i = 0; i < len; i++) {
                     // 指定marker渲染所在地图
-                    _markers[i].setMap(_map);
+                    _markers[i].setMap(this.map);
                     // 每个marker显示一个编号
                     _markers[i].setLabel({
                         fontSize: '12',
                         text: (i + 1).toString()
                     });
                 }
-                if (this.bounds.isEmpty()) {
-                    for (var i = 0; i < len; i++) {
-                        // 把每一个标记纳入边界内
-                        this.bounds.extend(_markers[i].position);
-                        // 让地图适应边界显示
-                        _map.fitBounds(this.bounds);
-                        // console.log(this.bounds);
-                    }
-                }
             }
+
         },
-        // 功能：当用户点击列表中的地点时，高亮显示对象的marker，map中心切换
+        // 用户点击列表地点时触发
+        // 1. 高亮显示marker
+        // 2. 显示信息窗口
+        // 3. marker设置为被选中
         // 这里仅有event handler
         // 在list - view model 中监听调用
         toggleMarker: function(id) {
-            // 先判断当前marker是否前一次刚点击过
-            // 没有点击过，才点击
-            if (this.selectedMarker !== this.markers[id]) {
-                // 用户选中的地点marker
-                // 保证一次只会选中一个地点
-                this.selectedMarker = this.markers[id];
-                // 高亮显示marker
-                this.selectedMarker.setIcon(this.makeMarkerIcon('ffff24'));
-                // 显示信息窗口
-                this.showInfoWindow(this.selectedMarker, this.largeInfoWindow);
-            } else if (!this.largeInfoWindow.getMap()) {
-                // 高亮显示marker
-                this.selectedMarker.setIcon(this.makeMarkerIcon('ffff24'));
-                // 显示信息窗口
-                this.showInfoWindow(this.selectedMarker, this.largeInfoWindow);
+            // 防止用户重复点击同一地点
+            // this.markers[id]    本次点击的marker
+            // this.currentMarker   前一次点击的marker 或者为null
+            // 判断是否为同一次
+            if (this.markers[id] !== this.currentMarker) {
+                // 不是同一次
+                // 将当前点击的marker设置为目标marker
+                this.currentMarker = this.markers[id];
+                // 显示marker信息
+                this.showMarkerInfo(this.currentMarker, this.largeInfoWindow);
+            } else if (!this.activatedMarker) {
+                // 是同一marker，但是前一次marker被关闭，需要重新激活
+                // 显示marker信息
+                this.showMarkerInfo(this.currentMarker, this.largeInfoWindow);
             }
         },
-        // 点击marker时，显示信息窗口
-        showInfoWindow: function(marker, infoWindow) {
+        // 点击marker时
+        // 1. 显示信息窗口
+        // 2. 高亮marker
+        // 3. 设置为激活marker状态
+        showMarkerInfo: function(marker, infoWindow) {
             var self = this;
             // 先检查一下当前marker是否已经有窗口打开
             // 没有打开，才打开
+            // infoWindow.marker    前一个marker || undefined
+            // marker    当前marker
             if (infoWindow.marker !== marker) {
-                // 切换到下一个marker之前，先把上一个marker恢复为默认
-                if (infoWindow.marker) {
+                // 如果当前存在激活状态的marker
+                // 则把marker恢复为默认颜色
+                if (this.activatedMarker) {
                     infoWindow.marker.setIcon(self.makeMarkerIcon('268bd2'));
+
                 }
+
                 infoWindow.marker = marker;
+
+                // marker设置为激活状态
+                this.activatedMarker = true;
+                // 高亮显示marker
+                marker.setIcon(this.makeMarkerIcon('ffff24'));
+
                 infoWindow.setOptions({
                     content: '<div style="font:16px/1.5 sans-serif"><div>' + marker.title + '</div>' +
                         '<div style="font-size:12px;color:#ff7f27">' + marker.category + '</div>' +
@@ -220,15 +225,23 @@ var app = app || {};
                     maxWidth: 250
                 });
                 google.maps.event.addListener(infoWindow, 'closeclick', function() {
-                    // console.log('我被关闭了');
-                    // 关闭信息窗口
-                    // marker恢复默认颜色
-                    // console.log(marker);
-                    marker.setIcon(self.makeMarkerIcon('268bd2'));
-                    infoWindow.close();
+                    // 调用方法
+                    self.hideMarkerInfo(marker, infoWindow);
                 });
             }
             infoWindow.open(app.googleMap.map, marker);
+        },
+        // 用户关闭信息窗口 || 数据重新载入时，隐藏marker信息
+        // 参数：
+        // marker：当前marker
+        // infoWindow:当前信息窗口
+        hideMarkerInfo: function(marker, infoWindow) {
+            // 关闭信息窗口
+            // marker恢复默认颜色
+            // marker设置为未激活状态
+            marker.setIcon(this.makeMarkerIcon('268bd2'));
+            infoWindow.close();
+            this.activatedMarker = false;
         },
         // 自定义marker样式
         makeMarkerIcon: function(markerColor) {
@@ -242,6 +255,23 @@ var app = app || {};
                 labelOrigin: new google.maps.Point(11, 11)
             };
             return image;
+        },
+        // 重置地图所有状态（属性）
+        resetMap: function() {
+            // 1. 重置marker信息
+            if (this.currentMarker) {
+                if (this.activatedMarker) {
+                    this.hideMarkerInfo(this.currentMarker, this.largeInfoWindow);
+                }
+                // 2. 重置currentMarker
+                this.currentMarker = null;
+            }
+            // 3. currentLocation恢复无
+            this.currentLocation = null;
+            // 6.
+            // this.largeInfoWindow = null;
+            // 4.
+            // this.showMarkers();
         },
         showDetails: function(ele) {
             // console.log(typeof ele);

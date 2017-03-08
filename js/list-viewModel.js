@@ -12,34 +12,48 @@ var app = app || {};
         var self = this;
 
         // 监控地点数组
+        // 初始值为undefined
         self.locationList = ko.observableArray();
-        // 缓存并监控过滤条件变量
+        // 媒介
+        // 缓存用户输入的filter字符串
+        // 当点击搜索按钮，将字符串传递给currentFilter().name
+        self.tempFilterName = ko.observable();
+        // 筛选条件为对象类型
+        // name属性：存储筛选字符串
+        // id属性：如果当前为类别筛选，则为筛选出来的地点的id数组
         // property to store the filter
         self.currentFilter = ko.observable({
             name: ko.observable(),
             id: ko.observableArray()
         });
 
-        // 筛选地点
+        // 筛选地点算法
+        // 实现地点筛选
+        // 返回筛选出的地点数组
         self.filterLocations = ko.computed(function() {
             // 若用户输入内容
             // 将用户输入的内容转换成字符串数组
-            // 并排除所有的空字符串
-            // name初始值为了undefined, falsy
-            // 数组类型的boolean始终为true
+            // 并排除所有的空字符串 filter
+            // name初始值为undefined, falsy
+            // 数组类型为true
             if (!self.currentFilter().name() || self.currentFilter().name().split(' ').filter(Boolean).length === 0) {
                 // there is no filter string
                 return self.locationList();
-            } else if (self.currentFilter().id() == true) {
+            } else if (!(self.currentFilter().id().length === 0)) {
                 // 筛选1：点击类别名称进行筛选
                 // 每个类别下对应不同的地点，以id存储
                 // 所以可以直接按id进行检索筛选
-                var _temArr = [];
+                var _tempArr = [];
                 self.currentFilter().id().forEach(function(item) {
-                    _temArr.push(self.locationList()[item]);
+                    _tempArr.push(self.locationList()[item]);
                 });
-                return _temArr;
+
+                // 清空筛选ID数组
+                self.currentFilter().id([]);
+
+                return _tempArr;
             } else {
+
                 // 筛选2：直接输入筛选
                 // 使用了ko提供的数组筛选方法，类似ES5 的filter方法
                 // http://stackoverflow.com/questions/20857594/knockout-filtering-on-observable-array
@@ -52,29 +66,72 @@ var app = app || {};
                     // 并合并为一个字符串数组，同时排除掉空字符串
                     // 只要用户输入的字符串数组中有一个元素
                     // 与地点字符串数组中的一个元素匹配上，则返回true
-                    var _temArr = (item.name.split(' ').concat(item.category.split(' '))).filter(Boolean);
-                    return _temArr.some(function(prop) {
+                    var _tempArr = (item.name.split(' ').concat(item.category.split(' '))).filter(Boolean);
+                    return _tempArr.some(function(prop) {
                         return prop.fuzzy(self.currentFilter().name());
                     });
                 });
             }
         });
 
-        // 设置当前筛选条件
+
+        // 设置筛选条件 => 立即筛选出地点
+        // 直接数据筛选1 和类型筛选2 均通过这里设置
+        // list details 重置
+        // map 重置
         self.setCurrentFilter = function(data) {
-            self.currentFilter().name(data.name);
-            self.currentFilter().id(data.id);
+            // 避免重复搜索
+            if (data.name !== self.currentFilter().name()) {
+                if (typeof data === 'object') {
+                    // 类型筛选
+                    self.currentFilter().name(data.name);
+                    self.currentFilter().id(data.id);
+                    // 显示在filter搜索框中
+                    self.tempFilterName(data.name);
+                } else {
+                    // 直接输入筛选
+                    self.currentFilter().name(self.tempFilterName());
+                    self.currentFilter().id([]);
+                }
 
-            // 重置状态
-            self.filterStatus(false);
+                // list details重置
+                self.resetListDetails();
 
-            self.detailsStatus(false);
-            self.mapStatus(false);
-            self.listStatus(true);
+                // map重置
+                app.googleMap.resetMap();
 
-            // 重新渲染地图
-            app.googleMap.showMarkers();
+                // 显示markers
+                app.googleMap.showMarkers();
+            }
         };
+
+        // 搜索框
+        //
+        self.searchBoxSelected = ko.observable(false);
+        self.setSearchFocused = function() {
+            self.searchBoxSelected(true);
+        }
+        self.cityName = ko.observable('New York');
+
+        self.cityNameChanged = ko.observable(false);
+
+        self.changeCityName = function() {
+            self.cityNameChanged(true);
+        };
+        // 当city box中的地点发生了更改才发送ajax请求
+        // 同时关闭搜索框
+        self.fetchLocations = function() {
+            // fetch数据后，就能筛选地点
+            if (self.cityNameChanged()) {
+                app.fetchLocations();
+                self.cityNameChanged(false);
+            } else {
+                console.log('无需ajax，直接筛选');
+                self.setCurrentFilter(self.tempFilterName);
+            }
+            self.searchBoxSelected(false);
+        }
+
         // 缓存所有的类别
         // 一组类别对象
         // 对象属性：
@@ -84,14 +141,14 @@ var app = app || {};
         self.categoryList = ko.computed(function() {
             var _list = [];
             this.locationList().forEach(function(item) {
-              var _temArr = [];
+              var _tempArr = [];
               // 新建对象的时候就给出限制
               // 当列表中已经存在这个类别，则返回true
               // 如果不存在则返回false
               var _itemIsExist = false;
 
               _itemIsExist = _list.some(function(ele) {
-                _temArr.push(ele);
+                _tempArr.push(ele);
                 return ele.name === item.category;
               });
 
@@ -103,7 +160,7 @@ var app = app || {};
                 id: [item.id]     // array of number
               })
               } else {
-                _list[_temArr.length - 1].id.push(item.id);
+                _list[_tempArr.length - 1].id.push(item.id);
               }
             });
             return _list;
@@ -207,6 +264,24 @@ var app = app || {};
                 return 'List';
             }
         });
+        // 重置list和details所有状态（属性）
+        self.resetListDetails = function() {
+            // 关闭筛选框
+            self.filterStatus(false);
+            // 关闭搜索框
+            self.searchBoxSelected(false);
+            // 2.
+            self.detailsStatus(false);
+            self.mapStatus(false);
+            // 1.
+            self.listStatus(true);
+            //
+            self.currentLocation(null);
+            //
+            self.cityNameChanged(false);
+            //
+            self.searchBoxSelected(false);
+        };
 
     };
 
