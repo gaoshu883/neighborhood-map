@@ -12,6 +12,7 @@ var app = app || {};
         bounds: null, // 存储初始渲染的地图边界范围
         largeInfoWindow: null, // 存储信息窗口对象
         isMobile: false, // 当前是否为移动版
+        listenerIDs:[], // 缓存所有通过google.maps.event.addListener添加的监听程序id
         // 异步请求google地图后的回调函数
         initMap: function() {
             'use strict';
@@ -20,17 +21,14 @@ var app = app || {};
 
             // 初始化地图
             this.map = new google.maps.Map(document.getElementById('map'), {
-                // 初次选定的中心为上海
-                center: {
-                    lat: 31.230416,
-                    lng: 121.473701
-                },
+                // 以纽约市为地图中心
+                center: new google.maps.LatLng(40.712784,-74.005941),
                 // mapTypeControlOptions: {
                 //     mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
                 // },
                 scrollwheel: true,
                 // mapTypeControl: false, // 禁止用户修改为其他类型的地图
-                zoom: 12
+                zoom: 14
             });
 
             // 判断使用的是否为移动设备
@@ -57,15 +55,20 @@ var app = app || {};
             var self = this;
             // 初始化信息窗口 // 重写
             this.largeInfoWindow = new google.maps.InfoWindow();
+
+            // 地图边界默认无
+            this.bounds = null;
+
             // 自定义markers的样式
             var defaultIcon = this.makeMarkerIcon('268bd2');
 
             // 当用户鼠标经过某个marker的时候，该marker高亮显示
             var highlightedIcon = this.makeMarkerIcon('ffff24');
 
-            // 遍历地点数组，然后为每个地点创建一个marker
+            // 遍历全部地点，然后为每个地点创建一个marker
             // 暂未设置到地图上
             var _locations = app.viewModel.locationList();
+
             for (var i = 0; i < _locations.length; i++) {
                 var markerOptions = {
                         position: _locations[i].geoLocation,
@@ -91,7 +94,7 @@ var app = app || {};
                 // 5. 高亮marker （显式，需要关闭）
                 // 3. 显示信息窗口 （显式，需要关闭）
                 // 4. 显示地点详情 （显式，需要关闭）
-                marker.addListener('click', function() {
+                var listenerID1 = google.maps.event.addListener(marker, 'click', function() {
                     // 1. 设置当前地点
                     self.currentLocation = _locations[this.id];
                     // 2. 将当前marker设置为目标
@@ -106,18 +109,16 @@ var app = app || {};
                 });
                 // 为每一个marker注册两个鼠标事件监听程序
                 // 电脑端有效
-                marker.addListener('mouseover', function() {
+                listenerID2 = google.maps.event.addListener(marker, 'mouseover', function() {
                     this.setIcon(highlightedIcon);
                 });
-                marker.addListener('mouseout', function() {
+                listenerID3 = google.maps.event.addListener(marker, 'mouseout', function() {
                     this.setIcon(defaultIcon);
-                })
+                });
+                this.listenerIDs.push(listenerID1,listenerID2,listenerID3);
             }
-            // 地图边界默认无
-            this.bounds = null;
-
         },
-        // 函数：`渲染`所有markers
+        // 函数：显示满足筛选条件的markers
         // 实现：
         // 1. 首次渲染marker
         // 2. 根据locationList确定地图边界，无特殊情况，边界不重复渲染
@@ -139,12 +140,6 @@ var app = app || {};
 
             // 满足筛选条件的地点
             var _locations = app.viewModel.filterLocations();
-
-            // 清空所有的标记
-            for (var i = 0; i < this.markers.length; i++) {
-                // 隐藏markers
-                this.markers[i].setMap(null);
-            }
 
             // 根据地点id过滤markers
             var _markers = this.markers.filter(function(val) {
@@ -224,10 +219,11 @@ var app = app || {};
                         '<div id="infoWindow" style="font-weight: bold;cursor:pointer;color:#268bd2" onclick="app.googleMap.showDetails(this)">Location details</div></div>',
                     maxWidth: 250
                 });
-                google.maps.event.addListener(infoWindow, 'closeclick', function() {
+                var listenerID4 = google.maps.event.addListener(infoWindow, 'closeclick', function() {
                     // 调用方法
                     self.hideMarkerInfo(marker, infoWindow);
                 });
+                this.listenerIDs.push(listenerID4);
             }
             infoWindow.open(app.googleMap.map, marker);
         },
@@ -257,6 +253,7 @@ var app = app || {};
             return image;
         },
         // 重置地图所有状态（属性）
+        // 隐藏所有markers
         resetMap: function() {
             // 1. 重置marker信息
             if (this.currentMarker) {
@@ -268,10 +265,10 @@ var app = app || {};
             }
             // 3. currentLocation恢复无
             this.currentLocation = null;
-            // 6.
-            // this.largeInfoWindow = null;
-            // 4.
-            // this.showMarkers();
+            // 所有标记均不显示
+            this.markers.forEach(function(item) {
+                item.setMap(null);
+            });
         },
         showDetails: function(ele) {
             // console.log(typeof ele);

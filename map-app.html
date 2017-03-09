@@ -14,12 +14,12 @@
     <!-- 搜索条 -->
     <div class="search-panel search-bar">
       <!-- 消除inline-block元素之间的间距 -->
-        <span class="search-panel-btn toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</span><div class="search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="value:tempFilterName,click:setSearchFocused" placeholder="Search here..."><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><span>Now you are in: </span><label for="searchCity">Enter your favorite location:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName}"></div></div><span class="fontawesome-search search-panel-btn search-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''},click:fetchLocations"></span><span class="fontawesome-filter search-panel-btn filter-list" data-bind="click:toggleFilter"></span>
+        <div class="search-panel-btn toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</div><div class="search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="textInput:tempFilterName,event:{click:setSearchFocused,select:setSearchFocused,input:setSearchFocused,keyup:enterKeyUp}" placeholder="Search here..."><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><label class="search-city-label" for="searchCity">Now you are in:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName,keyup:enterKeyUp}"></div></div><div class="search-panel-btn search-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><div class="fontawesome-search" data-bind="click:fetchLocations"></div><div class="fontawesome-remove" data-bind="click:function(){searchBoxSelected(false)}"></div></div><div class="fontawesome-filter search-panel-btn filter-list" data-bind="click:toggleFilter"></div>
 
         <!-- 这里显示所有的类别 -->
         <!-- 向下效果滑出 -->
         <div class="category-list" data-bind="style:{display:filterStatus() ? 'block':''},foreach:categoryList">
-            <span class="category-name" data-bind="text:name,event:{click:$parent.setCurrentFilter}"></span>
+            <span class="category-name" data-bind="text:name,event:{click:$parent.fetchLocations}"></span>
         </div>
 
     </div>
@@ -30,9 +30,9 @@
         <!-- ko foreach:filterLocations -->
             <div class="location-item" data-bind="click:$parent.showDetails">
                 <div>
-                    <span data-bind="text:$index() + 1"></span>
-                    <span data-bind="text:name"></span>
-                    <span data-bind="text:rating"></span>
+                    <span class="location-item-order" data-bind="text:$index() + 1"></span>
+                    <span class="strong" data-bind="text:name"></span>
+                    <sup class="strong" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup>
                 </div>
                 <p data-bind="text:address[0]"></p>
             </div>
@@ -47,16 +47,18 @@
     <div id="locationDetails" class="location-details" data-bind="style:{display:detailsStatus()&&!listStatus()&&!mapStatus()&&currentLocation()? 'block':''},with:currentLocation">
         <div class="fontawesome-angle-left location-details-close-icon" data-bind="click:$parent.hideDetails"></div>
         <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
-        <p><span data-bind="text:name"></span><span data-bind="text:rating"></span></p>
-        <p data-bind="text:category"></p>
-        <p data-bind="text:address"></p>
+        <p class="strong"><span data-bind="text:name"></span><sup class="location-details-rating" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup></p>
+        <p>
+            <span class="location-details-category small" data-bind="text:category"></span>
+            <button class="show-map-btn fontawesome-map-marker" data-bind="click:$parent.showMap"></button>
+        </p>
+        <p class="location-details-address small" data-bind="text:address"></p>
         <div data-bind="visible:hours,with:hours">
             <p data-bind="visible:isOpen,text:status"></p>
             <p data-bind="visible:!isOpen,text: 'Close now!'"></p>
         </div>
         <p data-bind="text:contact"></p>
         <p><a data-bind="attr: {href:url}"></a></p>
-        <p class="show-map-btn"><button data-bind="click:$parent.showMap">See in the map</button></p>
     </div>
 
 

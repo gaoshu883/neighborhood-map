@@ -47,7 +47,7 @@ var app = app || {};
                 self.currentFilter().id().forEach(function(item) {
                     _tempArr.push(self.locationList()[item]);
                 });
-
+                // 进行过类别筛选，就把id重置为[]
                 // 清空筛选ID数组
                 self.currentFilter().id([]);
 
@@ -81,27 +81,18 @@ var app = app || {};
         // map 重置
         self.setCurrentFilter = function(data) {
             // 避免重复搜索
-            if (data.name !== self.currentFilter().name()) {
-                if (typeof data === 'object') {
-                    // 类型筛选
+            if (!!data) {
+                if (data.id && data.name !== self.currentFilter().name()) {
+                    // 确定为类型筛选，且筛选词发生改变
                     self.currentFilter().name(data.name);
                     self.currentFilter().id(data.id);
                     // 显示在filter搜索框中
                     self.tempFilterName(data.name);
-                } else {
-                    // 直接输入筛选
+                } else if (!data.id && self.tempFilterName() !== self.currentFilter().name()) {
+                    // 确定为直接输入筛选，且筛选词不重复
                     self.currentFilter().name(self.tempFilterName());
                     self.currentFilter().id([]);
                 }
-
-                // list details重置
-                self.resetListDetails();
-
-                // map重置
-                app.googleMap.resetMap();
-
-                // 显示markers
-                app.googleMap.showMarkers();
             }
         };
 
@@ -110,6 +101,7 @@ var app = app || {};
         self.searchBoxSelected = ko.observable(false);
         self.setSearchFocused = function() {
             self.searchBoxSelected(true);
+            self.filterStatus(false);
         }
         self.cityName = ko.observable('New York');
 
@@ -118,18 +110,37 @@ var app = app || {};
         self.changeCityName = function() {
             self.cityNameChanged(true);
         };
-        // 当city box中的地点发生了更改才发送ajax请求
+        // 当用户点击搜索按钮
+        // 首先设置当前搜索条件 => 地点随之会发生变动
         // 同时关闭搜索框
-        self.fetchLocations = function() {
+        // 当city box中的地点发生了更改才发送ajax请求
+        // 否则进行类别筛选
+        self.fetchLocations = function(data) {
+            self.setCurrentFilter(data);
             // fetch数据后，就能筛选地点
             if (self.cityNameChanged()) {
                 app.fetchLocations();
                 self.cityNameChanged(false);
+                console.log('City Name 发生了改变');
             } else {
                 console.log('无需ajax，直接筛选');
-                self.setCurrentFilter(self.tempFilterName);
+
+                // list details重置
+                self.resetListDetails();
+
+                // map重置
+                app.googleMap.resetMap();
+                // 显示筛选后markers
+                app.googleMap.showMarkers();
+
             }
-            self.searchBoxSelected(false);
+        };
+
+        // 当用户按下enter键时调用fetchLocations方法
+        self.enterKeyUp = function(data,event) {
+            if (event.keyCode === 13) {
+                self.fetchLocations(data);
+            }
         }
 
         // 缓存所有的类别
@@ -169,7 +180,12 @@ var app = app || {};
         self.filterStatus = ko.observable(false);
 
         self.toggleFilter = function() {
-            self.filterStatus() ? self.filterStatus(false): self.filterStatus(true);
+            if (self.filterStatus()) {
+                self.filterStatus(false)
+            } else {
+                self.filterStatus(true);
+                self.searchBoxSelected(false);
+            }
         };
 
         // 列表栏状态
@@ -184,9 +200,14 @@ var app = app || {};
         // 函数体中必须为`this`，改为`self`会出错
         self.toggleList = function() {
             // 重置details map状态
-            // 必须保证deteails、see-in-map状态不显示
+            // 必须保证deteails、see-in-map filter searchbox状态不显示
+            // 关闭筛选框
+            self.filterStatus(false);
+            // 关闭搜索框
+            self.searchBoxSelected(false);
             self.detailsStatus(false);
             self.mapStatus(false);
+
             // 根据list当前状态进行切换
             this.listStatus() ? self.listStatus(false) : this.listStatus(true);
         };
@@ -215,9 +236,11 @@ var app = app || {};
             // console.log(data !== self.currentLocation());
             // 2. 显示地点详情
             self.detailsStatus(true);
-            // 重置map list状态为false
+            // 重置map list filter searchbox状态为false
             self.mapStatus(false);
             self.listStatus(false);
+            self.filterStatus(false);
+            self.searchBoxSelected(false);
             // 传进来的数据就是当前地点对象
             // 先判断当前地点是否已经显示
             // 未显示，则显示
@@ -279,8 +302,6 @@ var app = app || {};
             self.currentLocation(null);
             //
             self.cityNameChanged(false);
-            //
-            self.searchBoxSelected(false);
         };
 
     };

@@ -36,16 +36,21 @@ var app = app || {};
                 });
                 // 重置list和deitails
                 app.viewModel.resetListDetails();
+                // 更新地点数据（重写）
+                // 完成地点筛选
                 app.viewModel.locationList(_tempArr);
-                // 5.
+                // remove all listeners in google map
+                app.googleMap.listenerIDs.forEach(function(item) {
+                    item.remove();
+                });
+                // 重置地图
+                app.googleMap.resetMap();
+                // 清空markers数组
                 app.googleMap.markers = [];
-
-                // 创建所有地点的markers
+                // （重新）创建所有地点的markers
                 app.googleMap.createMarkers();
                 // 显示markers
                 app.googleMap.showMarkers();
-                // 重置地图
-                app.googleMap.resetMap();
             },
             // 当没有从 foursquare 成功获取数据时
             error:function(){
@@ -68,6 +73,7 @@ var app = app || {};
             lng: _venue.location.lng || null
         }; // object
         this.rating = _venue.rating || null;
+        this.ratingColor = _venue.ratingColor || ''; // string
         this.url = _venue.url || '';
         this.hours = _venue.hours || null; // object
         this.category = _venue.categories[0].name || ''; // string
