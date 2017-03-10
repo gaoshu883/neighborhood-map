@@ -80,8 +80,8 @@ var app = app || {};
         // list details 重置
         // map 重置
         self.setCurrentFilter = function(data) {
-            // 避免重复搜索
             if (!!data) {
+                // 避免重复搜索
                 if (data.id && data.name !== self.currentFilter().name()) {
                     // 确定为类型筛选，且筛选词发生改变
                     self.currentFilter().name(data.name);
@@ -116,18 +116,21 @@ var app = app || {};
         // 当city box中的地点发生了更改才发送ajax请求
         // 否则进行类别筛选
         self.fetchLocations = function(data) {
+            // 两者均改变
+            if (self.cityNameChanged()&&self.tempFilterName()!==self.currentFilter().name()) {
+                self.listPretendInvisible(true);
+            }
             self.setCurrentFilter(data);
             // fetch数据后，就能筛选地点
             if (self.cityNameChanged()) {
-                app.fetchLocations();
                 self.cityNameChanged(false);
+                app.fetchLocations();
                 console.log('City Name 发生了改变');
             } else {
                 console.log('无需ajax，直接筛选');
 
                 // list details重置
                 self.resetListDetails();
-
                 // map重置
                 app.googleMap.resetMap();
                 // 显示筛选后markers
@@ -142,7 +145,11 @@ var app = app || {};
                 self.fetchLocations(data);
             }
         }
-
+        // 为了解决filter condition和city name同时change时出现的bug
+        // 特别使用的一个变量
+        // 当上述两者只其一发生改变，变量为false 列表显示
+        // 当上述两者均改变，变量为true 列表不显示
+        self.listPretendInvisible = ko.observable(false);
         // 缓存所有的类别
         // 一组类别对象
         // 对象属性：
@@ -302,6 +309,8 @@ var app = app || {};
             self.currentLocation(null);
             //
             self.cityNameChanged(false);
+
+            self.listPretendInvisible(false);//
         };
 
     };

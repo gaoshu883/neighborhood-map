@@ -26,7 +26,7 @@
 
     <!-- 地点列表 -->
     <!-- 列表存在性判断:map不显示并且存在筛选出的地点 -->
-    <div class="search-panel locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations().length!==0? 'block':''},css:listCSS">
+    <div class="search-panel locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations().length!==0&&!listPretendInvisible()? 'block':''},css:listCSS">
         <!-- ko foreach:filterLocations -->
             <div class="location-item" data-bind="click:$parent.showDetails">
                 <div>
@@ -38,7 +38,7 @@
             </div>
         <!-- /ko -->
     </div>
-    <div class="search-panel locations-notFound" data-bind="style:{display:currentFilter().name() && (filterLocations().length == 0)? 'block':''}">
+    <div class="search-panel locations-notFound" data-bind="style:{display:currentFilter().name() && (filterLocations().length == 0)&&!listPretendInvisible()? 'block':''}">
         <p>Not Found</p>
     </div>
 
