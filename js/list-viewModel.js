@@ -6,9 +6,9 @@ var app = app || {};
 (function() {
     'use strict';
 
-    app.ViewModel = function() {
+    var ListViewModel = function() {
         // this别名
-        // 指代viewModel对象
+        // 指代listViewModel对象
         var self = this;
 
         // 监控地点数组
@@ -103,7 +103,7 @@ var app = app || {};
             self.searchBoxSelected(true);
             self.filterStatus(false);
         }
-        self.cityName = ko.observable('New York');
+        self.cityName = ko.observable('');
 
         self.cityNameChanged = ko.observable(false);
 
@@ -120,6 +120,7 @@ var app = app || {};
             if (self.cityNameChanged()&&self.tempFilterName()!==self.currentFilter().name()) {
                 self.listPretendInvisible(true);
             }
+
             self.setCurrentFilter(data);
             // fetch数据后，就能筛选地点
             if (self.cityNameChanged()) {
@@ -137,6 +138,8 @@ var app = app || {};
                 app.googleMap.showMarkers();
 
             }
+            // 阻止a tag link默认事件
+            return false;
         };
 
         // 当用户按下enter键时调用fetchLocations方法
@@ -150,6 +153,7 @@ var app = app || {};
         // 当上述两者只其一发生改变，变量为false 列表显示
         // 当上述两者均改变，变量为true 列表不显示
         self.listPretendInvisible = ko.observable(false);
+
         // 缓存所有的类别
         // 一组类别对象
         // 对象属性：
@@ -193,6 +197,8 @@ var app = app || {};
                 self.filterStatus(true);
                 self.searchBoxSelected(false);
             }
+            // 阻止a tag link默认事件
+            return false;
         };
 
         // 列表栏状态
@@ -217,6 +223,9 @@ var app = app || {};
 
             // 根据list当前状态进行切换
             this.listStatus() ? self.listStatus(false) : this.listStatus(true);
+
+            // 阻止a tag link 默认事件的发生
+            return false;
         };
 
 
@@ -263,6 +272,9 @@ var app = app || {};
             // 把data传递给hideDetails
             self.whoTriggerDetails = data;
             // console.log(data);
+
+            // 阻止a tag link 默认事件的发生
+            return false;
         };
         // 切换3：hide location details panel
         // 实现后退功能
@@ -316,6 +328,6 @@ var app = app || {};
     };
 
     // 在map之前创建列表
-    app.viewModel = new app.ViewModel();
+    app.listViewModel = new ListViewModel();
 
 })();

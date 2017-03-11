@@ -21,14 +21,10 @@ var app = app || {};
 
             // 初始化地图
             this.map = new google.maps.Map(document.getElementById('map'), {
-                // 以纽约市为地图中心
-                center: new google.maps.LatLng(40.712784,-74.005941),
-                // mapTypeControlOptions: {
-                //     mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
-                // },
+                // 以中国的地理中心点为中心
+                center: new google.maps.LatLng(34.53,108.92),
                 scrollwheel: true,
-                // mapTypeControl: false, // 禁止用户修改为其他类型的地图
-                zoom: 14
+                zoom: 4
             });
 
             // 判断使用的是否为移动设备
@@ -67,7 +63,7 @@ var app = app || {};
 
             // 遍历全部地点，然后为每个地点创建一个marker
             // 暂未设置到地图上
-            var _locations = app.viewModel.locationList();
+            var _locations = app.listViewModel.locationList();
 
             for (var i = 0; i < _locations.length; i++) {
                 var markerOptions = {
@@ -78,7 +74,7 @@ var app = app || {};
                         icon: defaultIcon, // image
                         animation: google.maps.Animation.DROP,
                         id: _locations[i].id
-                    }
+                };
                     // 为每一个地点创建一个marker
                     // marker和location拥有相同的ID
                 var marker = new google.maps.Marker(markerOptions);
@@ -139,7 +135,7 @@ var app = app || {};
             }
 
             // 满足筛选条件的地点
-            var _locations = app.viewModel.filterLocations();
+            var _locations = app.listViewModel.filterLocations();
 
             // 根据地点id过滤markers
             var _markers = this.markers.filter(function(val) {
@@ -148,21 +144,20 @@ var app = app || {};
                 });
             });
 
-            var len = _markers.length;
-            if (len === 0) {
+            var _len = _markers.length;
+            if (_len === 0) {
                 return;
             } else {
-                for (var i = 0; i < len; i++) {
+                for (var j = 0; j < _len; j++) {
                     // 指定marker渲染所在地图
-                    _markers[i].setMap(this.map);
+                    _markers[j].setMap(this.map);
                     // 每个marker显示一个编号
-                    _markers[i].setLabel({
+                    _markers[j].setLabel({
                         fontSize: '12',
-                        text: (i + 1).toString()
+                        text: (j + 1).toString()
                     });
                 }
             }
-
         },
         // 用户点击列表地点时触发
         // 1. 高亮显示marker
@@ -193,6 +188,7 @@ var app = app || {};
         // 3. 设置为激活marker状态
         showMarkerInfo: function(marker, infoWindow) {
             var self = this;
+
             // 先检查一下当前marker是否已经有窗口打开
             // 没有打开，才打开
             // infoWindow.marker    前一个marker || undefined
@@ -213,18 +209,35 @@ var app = app || {};
                 marker.setIcon(this.makeMarkerIcon('ffff24'));
 
                 infoWindow.setOptions({
-                    content: '<div style="font:16px/1.5 sans-serif"><div>' + marker.title + '</div>' +
-                        '<div style="font-size:12px;color:#ff7f27">' + marker.category + '</div>' +
-                        '<div style="font-size:12px">' + marker.address + '</div>' +
-                        '<div id="infoWindow" style="font-weight: bold;cursor:pointer;color:#268bd2" onclick="app.googleMap.showDetails(this)">Location details</div></div>',
+                    content: '<div id="infoWindow"><div>' + marker.title + '</div>' +
+                        '<div class="infoWindow-category">' + marker.category + '</div>' +
+                        '<div class="infoWindow-address">' + marker.address + '</div>' +
+                        '<div class="details-link"><a title="For more details about this place" href="#" onclick="javascript:app.googleMap.showDetails(this)">Location details</a></div></div>',
                     maxWidth: 250
                 });
+                // 动态加载脚本
+                // http://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
+                // 位置很重要，必须在open之前
+                var cssId = 'infoWindow';  // you could encode the css path itself to generate id..
+                if (!document.getElementById(cssId))
+                {
+                    console.log('我被创建了，成功');
+                    var head  = document.getElementsByTagName('head')[0];
+                    var link  = document.createElement('link');
+                    link.id   = cssId;
+                    link.rel  = 'stylesheet';
+                    link.type = 'text/css';
+                    link.href = 'style/infoWindow.css';
+                    head.appendChild(link);
+                }
+
                 var listenerID4 = google.maps.event.addListener(infoWindow, 'closeclick', function() {
                     // 调用方法
                     self.hideMarkerInfo(marker, infoWindow);
                 });
                 this.listenerIDs.push(listenerID4);
             }
+
             infoWindow.open(app.googleMap.map, marker);
         },
         // 用户关闭信息窗口 || 数据重新载入时，隐藏marker信息
@@ -266,14 +279,16 @@ var app = app || {};
             // 3. currentLocation恢复无
             this.currentLocation = null;
             // 所有标记均不显示
-            this.markers.forEach(function(item) {
-                item.setMap(null);
-            });
+            if (this.markers.length!==0) {
+                this.markers.forEach(function(item) {
+                    item.setMap(null);
+                });
+            }
         },
         showDetails: function(ele) {
             // console.log(typeof ele);
-            app.viewModel.showDetails(this.currentLocation);
-            app.viewModel.whoTriggerDetails = ele;
+            app.listViewModel.showDetails(this.currentLocation);
+            app.listViewModel.whoTriggerDetails = ele;
         }
     };
 

@@ -1,14 +1,23 @@
-@import url(http://weloveiconfonts.com/api/?family=fontawesome);
-/* fontawesome */
-[class*="fontawesome-"]:before {
-  font-family: 'FontAwesome', sans-serif;
+/*
+ *
+ * Common
+ *
+ */
+
+* {
+    box-sizing: border-box;
+    /* Disable mobile browser click/touch/tap feedback box */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
 html,
 body {
     height: 100%;
     margin: 0;
     padding: 0;
-    background: #d0e6c0;
+}
+
+body {
     font-family:Verdana,'Lucida Grande',Arial;
 }
 @media screen and (orientation: portrait) {
@@ -16,13 +25,6 @@ body {
         font-size: 115%;
     }
 }
-
-* {
-    box-sizing: border-box;
-    /*去除移动端默认点击样式*/
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-
 
 label {
     display: none;
@@ -36,18 +38,35 @@ label {
     font-weight: 600;
 }
 
+.blue-text {
+    color: #268bd2;
+}
+
+/*
+ *
+ * Map
+ *
+ */
+
 #map {
     height: 100%;
 }
 
-.search-panel {
+/*
+ *
+ * Search panel
+ *
+ */
+
+.search-list {
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
+    background: #fff;
 }
 @media screen and (orientation: landscape) {
-    .search-panel {
+    .search-list {
         width: 400px;
     }
 }
@@ -57,8 +76,6 @@ label {
     border-bottom: 1px solid #ccc;
     text-align: center;
     box-shadow: 0 2px 5px rgba(85, 85, 85, 0.42);
-    background: rgba(255,255,255,1);
-    transition: height 1s ease;
     z-index: 2;
 }
 @media screen and (orientation: landscape) {
@@ -67,17 +84,46 @@ label {
     }
 }
 
+.search-bar a {
+    text-decoration: none;
+    color: inherit;
+}
+.search-bar a:hover {
+    color: #62a8da;
+}
+
+.search-toggle-btn {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.toggle-list {
+    width: 15%;
+    height: 1.5rem;
+}
 
 .search-dropbox {
-    display: inline-block;
     width: 70%;
+}
+
+.search-cancel-btn {
+    display: none;
+    height: 0;
+    width: 15%;
+    font-size: 1.5rem;
+}
+
+.filter-list {
+    width: 15%;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
 }
 
 .search-box {
     padding: 0.15rem 0.5rem;
     width: 100%;
     font-size: 1.2rem;
-    line-height: 1.5rem;
+    line-height: 1.2rem;
     border: none;
     border-radius: 3px;
     background: rgba(38, 139, 210, 0.52);
@@ -90,52 +136,29 @@ label {
 
 .search-city-label {
     display: inline-block;
-    color: #268bd2;
     padding: 0.75rem 0 0.25rem;
 }
 
-.search-panel-btn {
-    display: inline-block;
-    vertical-align: top;
-    color: #268bd2;
-    cursor: pointer;
-}
-
-.search-cancel-btn {
-    display: none; /*初始默认不显示*/
-    width: 15%;
-    font-size: 1.5rem;
-    /*line-height: 2.8rem;*/
-}
-
 .search-btn {
+    display: block;
     position: relative;
+    top: 0.5rem;
 }
 
 .cancel-btn {
+    display: block;
     position: relative;
-    top: 2.4rem;
+    top: 1.5rem;
 }
 
-.filter-list {
-    width: 15%;
-    font-size: 1.5rem;
-    line-height: 1.5rem;
-}
-
-.toggle-list {
-    width: 15%;
-    height: 1.5rem;
-}
-
-.category-list {
-    display: none; /*起始状态为关闭*/
+.search-category-list {
+    display: none;
     margin-top: 1rem;
     padding-top: 1rem;
     line-height: 1.5rem;
 }
 
-.category-name {
+.search-category-name {
     display: inline-block;
     margin: 5px;
     padding: 2px;
@@ -143,21 +166,57 @@ label {
     cursor: pointer;
 }
 
+.search-hide {
+    transform: translateX(-100%);
+}
+@media screen and (orientation: landscape) {
+    .search-hide {
+        transform: translateX(-400px);
+    }
+}
+
+.search-show {
+    transform: translateX(0);
+}
+
+/*
+ *
+ * Locations list
+ *
+ */
+
 .locations-list {
     display: none;
     top: calc(3.5rem + 1px);
     padding: 1rem;
     height: calc(100% - 3.5rem);
-    background: #fff;
     overflow-y: auto;
     will-change:transform;
     transition: transform 1s ease;
     z-index: 1;
 }
-@media screen and (orientation: landscape) {
-    .locations-list {
 
-    }
+.locations-item {
+    margin: 0.25rem 0;
+    border-bottom: 1px solid #268bd2;
+    cursor: pointer;
+}
+
+.locations-item-order {
+    display: inline-block;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    background: #268bd2;
+}
+
+.locations-item-name {
+    text-decoration: none;
+    color: inherit;
+}
+.locations-item-name:hover {
+    color: #268bd2;
 }
 
 .locations-notFound {
@@ -167,19 +226,11 @@ label {
     background: #fff;
 }
 
-.location-item {
-    margin: 0.25rem 0;
-    border-bottom: 1px solid #268bd2;
-}
-
-.location-item-order {
-    display: inline-block;
-    width: 1.5rem;
-    line-height: 1.5rem;
-    border-radius: 1.5rem;
-    text-align: center;
-    background: #268bd2;
-}
+/*
+ *
+ * Location details
+ *
+ */
 
 .location-details {
     display: none;
@@ -212,7 +263,6 @@ label {
     top: 0;
     left: 0;
     width: 3rem;
-    color: #268bd2;
     font-size: 2rem;
     line-height: 3rem;
     text-align: center;
@@ -254,7 +304,6 @@ label {
     width: 3rem;
     border-radius: 1.5rem;
     font-size: 1.5rem;
-    color: #268bd2;
 }
 @media screen and (orientation: landscape) {
     .show-map-btn {
@@ -262,16 +311,5 @@ label {
     }
 }
 
-.search-hide {
-    transform: translateX(-100%);
-}
-@media screen and (orientation: landscape) {
-    .search-hide {
-        transform: translateX(-400px);
-    }
-}
 
-.search-show {
-    transform: translateX(0);
-}
 

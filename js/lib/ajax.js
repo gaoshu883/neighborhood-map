@@ -143,7 +143,9 @@
                           success(xhr.responseText);
                         }
                     } else {
-                        error(xhr.status, xhr.statusText);
+                        // 将原始数据也传入
+                        // 最后一个参数 只针对JSON数据类型有效
+                        error(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
                     }
                 }
             };

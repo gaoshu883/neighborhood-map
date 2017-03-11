@@ -10,47 +10,44 @@
 
 <body>
     <div id="map"></div>
-
-    <!-- 搜索条 -->
-    <div class="search-panel search-bar">
-      <!-- 消除inline-block元素之间的间距 -->
-        <div class="search-panel-btn toggle-list" data-bind="click:toggleList,text:toggleMenuText">List</div><div class="search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="textInput:tempFilterName,event:{click:setSearchFocused,select:setSearchFocused,input:setSearchFocused,keyup:enterKeyUp}" placeholder="Search here..."><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><label class="search-city-label" for="searchCity">Now you are in:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName,keyup:enterKeyUp}"></div></div><div class="search-panel-btn search-cancel-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><div class="fontawesome-search search-btn" data-bind="click:fetchLocations"></div><div class="fontawesome-remove cancel-btn" data-bind="click:function(){searchBoxSelected(false)}"></div></div><div class="fontawesome-filter search-panel-btn filter-list" data-bind="click:toggleFilter"></div>
-
-        <!-- 这里显示所有的类别 -->
-        <!-- 向下效果滑出 -->
-        <div class="category-list" data-bind="style:{display:filterStatus() ? 'block':''},foreach:categoryList">
-            <span class="category-name" data-bind="text:name,event:{click:$parent.fetchLocations}"></span>
+    <!-- Search bar -->
+    <div class="search-list search-bar">
+        <div class="blue-text">
+            <!-- Remove whitespace between inline-block elements -->
+            <a class="search-toggle-btn toggle-list" href="#" data-bind="click:toggleList,text:toggleMenuText">List</a><div class="search-toggle-btn search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="textInput:tempFilterName,event:{click:setSearchFocused,select:setSearchFocused,input:setSearchFocused,keyup:enterKeyUp}" placeholder="Search here..."><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><label class="blue-text search-city-label" for="searchCity">Now you are in:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName,keyup:enterKeyUp}"></div></div><div class="search-toggle-btn search-cancel-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><a class="fontawesome-search search-btn" href="#" data-bind="click:fetchLocations"></a><a class="fontawesome-remove cancel-btn" href="#" data-bind="click:function(){searchBoxSelected(false);return false;}"></a></div><a class="fontawesome-filter search-toggle-btn filter-list" href="#" data-bind="click:toggleFilter"></a>
         </div>
-
+        <!-- Here is the category list -->
+        <div class="search-category-list" data-bind="style:{display:filterStatus() ? 'block':''},foreach:categoryList">
+            <span class="search-category-name" data-bind="text:name,event:{click:$parent.fetchLocations}"></span>
+        </div>
     </div>
 
-    <!-- 地点列表 -->
-    <!-- 列表存在性判断:map不显示并且存在筛选出的地点 -->
-    <div class="search-panel locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations().length!==0&&!listPretendInvisible()? 'block':''},css:listCSS">
+    <!-- Locations list -->
+    <div class="search-list locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations().length!==0&&!listPretendInvisible()? 'block':''},css:listCSS">
         <!-- ko foreach:filterLocations -->
-            <div class="location-item" data-bind="click:$parent.showDetails">
-                <div>
-                    <span class="location-item-order" data-bind="text:$index() + 1"></span>
-                    <span class="strong" data-bind="text:name"></span>
-                    <sup class="strong" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup>
-                </div>
-                <p data-bind="text:address[0]"></p>
+        <div class="locations-item" data-bind="click:$parent.showDetails">
+            <div>
+                <span class="locations-item-order" data-bind="text:$index() + 1"></span>
+                <a class="locations-item-name strong" href="#" data-bind="text:name"></a>
+                <sup class="strong" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup>
             </div>
+            <p data-bind="text:address[0]"></p>
+        </div>
         <!-- /ko -->
     </div>
+    <!-- If there is no venue meeting the specific filter condition -->
     <div class="search-panel locations-notFound" data-bind="style:{display:currentFilter().name() && (filterLocations().length == 0)&&!listPretendInvisible()? 'block':''}">
         <p>Not Found</p>
     </div>
 
-
-    <!-- 地点详情 -->
+    <!-- Location details -->
     <div id="locationDetails" class="location-details" data-bind="style:{display:detailsStatus()&&!listStatus()&&!mapStatus()&&currentLocation()? 'block':''},with:currentLocation">
-        <div class="fontawesome-angle-left location-details-close-icon" data-bind="click:$parent.hideDetails"></div>
+        <div class="fontawesome-angle-left location-details-close-icon blue-text" data-bind="click:$parent.hideDetails"></div>
         <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
         <p class="strong"><span data-bind="text:name"></span><sup class="location-details-rating" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup></p>
         <p>
             <span class="location-details-category small" data-bind="text:category"></span>
-            <button class="show-map-btn fontawesome-map-marker" data-bind="click:$parent.showMap"></button>
+            <button class="show-map-btn blue-text fontawesome-map-marker" data-bind="click:$parent.showMap"></button>
         </p>
         <p class="location-details-address small" data-bind="text:address"></p>
         <div data-bind="visible:hours,with:hours">
@@ -58,9 +55,10 @@
             <p data-bind="visible:!isOpen,text: 'Close now!'"></p>
         </div>
         <p data-bind="text:contact"></p>
-        <p><a data-bind="attr: {href:url}"></a></p>
+        <p>
+            <a data-bind="attr: {href:url}"></a>
+        </p>
     </div>
-
 
     <script type="text/javascript" src="js/lib/knockout-3.4.1.js"></script>
     <script type="text/javascript" src="js/lib/string.fuzzy.js"></script>
@@ -68,9 +66,10 @@
     <script type="text/javascript" src="js/list-viewModel.js"></script>
     <script type="text/javascript" src="js/models/locationList-data.js"></script>
     <script type="text/javascript" src="js/googleMap.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC20z-8QU5oAG87tAJpuWcTa0sPnLTMzsg&callback=app.googleMap.initMap" async></script>
     <script type="text/javascript" src="js/app.js"></script>
-    <!--Load the JS API ASYNCHRONOUSLY below.-->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC20z-8QU5oAG87tAJpuWcTa0sPnLTMzsg&callback=app.googleMap.initMap" async defer></script>
 </body>
 
 </html>
+<!-- Defer loading CSS -->
+<link rel="stylesheet" type="text/css" href="style/fontawesome.css">
