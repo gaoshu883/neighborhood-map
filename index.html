@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>array filter</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>goSightseeing</title>
     <link rel="stylesheet" type="text/css" href="style/app.css">
 </head>
 
@@ -14,7 +16,7 @@
     <div class="search-list search-bar">
         <div class="blue-text">
             <!-- Remove whitespace between inline-block elements -->
-            <a class="search-toggle-btn toggle-list" href="#" data-bind="click:toggleList,text:toggleMenuText">List</a><div class="search-toggle-btn search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="textInput:tempFilterName,event:{click:setSearchFocused,select:setSearchFocused,input:setSearchFocused,keyup:enterKeyUp}" placeholder="Search here..."><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><label class="blue-text search-city-label" for="searchCity">Now you are in:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName,keyup:enterKeyUp}"></div></div><div class="search-toggle-btn search-cancel-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><a class="fontawesome-search search-btn" href="#" data-bind="click:fetchLocations"></a><a class="fontawesome-remove cancel-btn" href="#" data-bind="click:function(){searchBoxSelected(false);return false;}"></a></div><a class="fontawesome-filter search-toggle-btn filter-list" href="#" data-bind="click:toggleFilter"></a>
+            <a class="search-toggle-btn toggle-list" href="#" data-bind="click:toggleList,text:toggleMenuText">List</a><div class="search-toggle-btn search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="textInput:actualFilterName,event:{click:setSearchFocused,select:setSearchFocused,input:setSearchFocused,keyup:enterKeyUp}" placeholder="Name/Type"><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><label class="blue-text search-city-label" for="searchCity">Now you are in:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName,keyup:enterKeyUp}"></div></div><div class="search-toggle-btn search-cancel-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><a class="fontawesome-search search-btn" href="#" data-bind="click:fetchLocations"></a><a class="fontawesome-remove cancel-btn" href="#" data-bind="click:function(){searchBoxSelected(false);return false;}"></a></div><a class="fontawesome-filter search-toggle-btn filter-list" href="#" data-bind="click:toggleFilter"></a>
         </div>
         <!-- Here is the category list -->
         <div class="search-category-list" data-bind="style:{display:filterStatus() ? 'block':''},foreach:categoryList">
@@ -36,7 +38,7 @@
         <!-- /ko -->
     </div>
     <!-- If there is no venue meeting the specific filter condition -->
-    <div class="search-panel locations-notFound" data-bind="style:{display:currentFilter().name() && (filterLocations().length == 0)&&!listPretendInvisible()? 'block':''}">
+    <div class="search-list locations-notFound" data-bind="style:{display:actualFilterName() && (filterLocations().length == 0)&&!listPretendInvisible()? 'block':''}">
         <p>Not Found</p>
     </div>
 
@@ -61,11 +63,10 @@
     </div>
 
     <script type="text/javascript" src="js/lib/knockout-3.4.1.js"></script>
-    <script type="text/javascript" src="js/lib/string.fuzzy.js"></script>
     <script type="text/javascript" src="js/lib/ajax.js"></script>
-    <script type="text/javascript" src="js/list-viewModel.js"></script>
-    <script type="text/javascript" src="js/models/locationList-data.js"></script>
-    <script type="text/javascript" src="js/googleMap.js"></script>
+    <script type="text/javascript" src="js/app/listViewModel.js"></script>
+    <script type="text/javascript" src="js/app/fetchLocations.js"></script>
+    <script type="text/javascript" src="js/app/googleMap.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC20z-8QU5oAG87tAJpuWcTa0sPnLTMzsg&callback=app.googleMap.initMap" async></script>
     <script type="text/javascript" src="js/app.js"></script>
 </body>

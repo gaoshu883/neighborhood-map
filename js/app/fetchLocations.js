@@ -1,16 +1,16 @@
-// 全局变量
 var app = app || {};
-// namespace
+
 (function() {
+    'use strict';
+
     // URL of fetching foursquare.com data
     var apiURL = 'https://api.foursquare.com/v2/venues/explore';
-    var foursquareClientID = '14FTN2LRVCBJHEV3FLELFRGEGR1XJWNPMOXJHNRISVEXKYL2'
+    var foursquareClientID = '14FTN2LRVCBJHEV3FLELFRGEGR1XJWNPMOXJHNRISVEXKYL2';
     var foursquareSecret ='4SWVEZDF0C2SMFQQS5241GKRNNRHGQROZMXP2JI1DLFNPCOO';
     var foursquareVersion = '20170311';
-    var queryRadius = 1000;
     var queryCategory = 'sights';
 
-    var foursquareURL = apiURL + '?client_id=' + foursquareClientID + '&client_secret=' + foursquareSecret +'&v=' + foursquareVersion + '&radius='+ queryRadius + '&query=' + queryCategory + '&venuePhotos=1' + '&near=';
+    var foursquareURL = apiURL + '?client_id=' + foursquareClientID + '&client_secret=' + foursquareSecret +'&v=' + foursquareVersion + '&query=' + queryCategory + '&venuePhotos=1' + '&near=';
 
     // This method will be invoked when users update the city name.
     // Send asynchronous request via Ajax
@@ -18,46 +18,48 @@ var app = app || {};
         ajax({
             type:"get",
             url:foursquareURL + app.listViewModel.cityName(),
+            // It is invoked when place data response successfully
             success:function(data){
                 // `venues` caches an array of place objects
                 var venues = data.response.groups[0].items;
                 if (venues.length !== 0) {
-                    // Iterate venues and map the JSON data to an array of plain objects, then cached in the listViewModel's locationList property
-                    // 这里是临时数组 暂时缓存所有地点数组
-                    // 每次数据响应后调用success回调函数时
-                    // 都会重新创建这个临时数组
-                    // 保证locationList都是最新fetch回来的数据
-                    var _tempArr = [];
-
-                    // 先存放在临时数据里
+                    /*
+                     * Inform list view model
+                     */
+                    // Iterate venues and map the JSON data to an array of plain objects,
+                    // then cached in a temporary array which will override the listViewModel.locationList property
+                    var tempArr = [];
                     venues.forEach(function(item,index) {
-                        _tempArr.push(new Location(item,index));
+                        tempArr.push(new Location(item,index));
                     });
-                    // 重置list和deitails
+                    app.listViewModel.locationList(tempArr);
+                    // Reset some properties of listViewModel with default values
                     app.listViewModel.resetListDetails();
-                    // 更新地点数据（重写）
-                    // 完成地点筛选
-                    app.listViewModel.locationList(_tempArr);
-                    // remove all listeners in google map
+
+                    /*
+                     * Inform google map
+                     */
+                    // Remove all listeners created using `google.maps.event.addListener` method in google map (if any)
                     if (app.googleMap.listenerIDs.length!==0) {
                         app.googleMap.listenerIDs.forEach(function(item) {
                             item.remove();
                         });
                     }
-                    // 重置地图
+                    // Reset some properties of googleMap with default values
                     app.googleMap.resetMap();
-                    // 清空markers数组
-                    app.googleMap.markers = [];
-                    // （重新）创建所有地点的markers
+                    // Clear markers array
+                    app.googleMap.markers.length = 0;
+                    // Create markers of all locations
                     app.googleMap.createMarkers();
-                    // 显示markers
+                    // Show markers of locations meeting filter condition
                     app.googleMap.showMarkers();
                 } else {
+                    // Response successfully, but `venues` array is empty
+                    // For example, searching `world` city will encounter this issue
                     alert('Sorry...there is no recommended places in ' + app.listViewModel.cityName() + ', please try another city.');
                 }
-
             },
-            // 当没有从 foursquare 成功获取数据时
+            // Handle the data requests that fail based on different error types
             error:function(status,text,data){
                 if (data.meta) {
                     switch (data.meta.errorType) {
@@ -86,26 +88,28 @@ var app = app || {};
     };
 
     // Location class
-    // Mapper: mapping from JSON data to plain object(if need, to observables)
+    // Mapper: mapping from JSON data to plain objects
+    // @param {object} item -venue data
+    // @param {number} index - ID of each venue
     function Location(item,index) {
-        var _venue = item.venue;
-        this.name = _venue.name;
-        this.contact = _venue.contact.formattedPhone || '';
-        this.address = _venue.location.formattedAddress || []; // array
+        var venue = item.venue;
+        this.name = venue.name;
+        this.contact = venue.contact.formattedPhone || '';
+        this.address = venue.location.formattedAddress || [];
         this.geoLocation = {
-            lat: _venue.location.lat || null,
-            lng: _venue.location.lng || null
-        }; // object
-        this.rating = _venue.rating || null;
-        this.ratingColor = _venue.ratingColor || ''; // string
-        this.url = _venue.url || '';
-        this.hours = _venue.hours || null; // object
-        this.category = _venue.categories[0].name || ''; // string
-        this.photo = {
-            prefix: _venue.photos.groups[0].items[0].prefix,
-            suffix: _venue.photos.groups[0].items[0].suffix,
-            visibility:_venue.photos.groups[0].items[0].visibility
+            lat: venue.location.lat || null,
+            lng: venue.location.lng || null
         };
-        this.id = index; // simple ID of each place match with ID of each marker
+        this.rating = venue.rating || null;
+        this.ratingColor = venue.ratingColor || '';
+        this.url = venue.url || '';
+        this.hours = venue.hours || null; // object
+        this.category = venue.categories[0].name || '';
+        this.photo = {
+            prefix: venue.photos.groups[0].items[0].prefix,
+            suffix: venue.photos.groups[0].items[0].suffix,
+            visibility:venue.photos.groups[0].items[0].visibility
+        };
+        this.id = index; // simple ID of each place matching with ID of each marker
     }
 })();
