@@ -34,7 +34,7 @@ var app = app || {};
                 }, false);
 
             // Clear out the timer set for handling the google map loading error
-            clearTimeout(googleMapRequestTimeout);
+            clearTimeout(app.googleMapRequestTimeout);
         },
 
         // Create markes of all venues of a certain city, It is triggered when new locations data are fetched from foursquare.com
@@ -220,7 +220,6 @@ var app = app || {};
         // Only exist in the portrait orientation
         // @param {object} ele - the object that is clicked
         showDetails: function(ele) {
-            console.log(ele);
             app.listViewModel.showDetails(this.currentLocation);
             app.listViewModel.whoTriggerDetails = ele;
         }
