@@ -7,7 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>goSightseeing</title>
-    <link rel="stylesheet" type="text/css" href="style/app.css">
+    <!-- inline css/app.css -->
+    <link rel="stylesheet" type="text/css" href="css/app.css" inline>
 </head>
 
 <body>
@@ -67,10 +68,19 @@
     <script type="text/javascript" src="js/app/listViewModel.js"></script>
     <script type="text/javascript" src="js/app/fetchLocations.js"></script>
     <script type="text/javascript" src="js/app/googleMap.js"></script>
+    <!-- inline js/app.js -->
+    <script type="text/javascript" src="js/app.js" inline></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC20z-8QU5oAG87tAJpuWcTa0sPnLTMzsg&callback=app.googleMap.initMap" async></script>
-    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript">
+        // Defer loading CSS file
+        var head  = document.getElementsByTagName('head')[0];
+        var link  = document.createElement('link');
+        link.rel  = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'http://weloveiconfonts.com/api/?family=fontawesome';
+        head.appendChild(link);
+    </script>
 </body>
 
 </html>
-<!-- Defer loading CSS -->
-<link rel="stylesheet" type="text/css" href="style/fontawesome.css">
+

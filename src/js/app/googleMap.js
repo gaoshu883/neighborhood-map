@@ -163,7 +163,7 @@ var app = app || {};
 
                 // Load CSS file dynamically and style the infoWindow content
                 // Inspired by http://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
-                var cssId = 'infoWindow';
+                var cssId = 'infoWindowCSS';
                 if (!document.getElementById(cssId))
                 {
                     // console.log('Load CSS file dynamically and successfully');
@@ -172,7 +172,7 @@ var app = app || {};
                     link.id   = cssId;
                     link.rel  = 'stylesheet';
                     link.type = 'text/css';
-                    link.href = 'style/infoWindow.css';
+                    link.href = 'css/infoWindow.css';
                     head.appendChild(link);
                 }
 
