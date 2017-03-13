@@ -6,8 +6,8 @@ var app = app || {};
     // @param {string} libraryStr - the string that be compared to
     // @param {string} inputStr - the string that users input(will be split into an array of strings without empty values)
     // return true/false
-    function fuzzySearch(libraryStr,inputStr) {
-      // The method to remove empty values of an array is inspired by http://stackoverflow.com/questions/281264/remove-empty-elements-from-an-array-in-javascript
+    function fuzzySearch(libraryStr, inputStr) {
+        // The method to remove empty values of an array is inspired by http://stackoverflow.com/questions/281264/remove-empty-elements-from-an-array-in-javascript
         var inputArr = inputStr.split(' ').filter(Boolean);
         var hay = libraryStr.toLowerCase(),
             i = 0,
@@ -55,26 +55,26 @@ var app = app || {};
             var list = [];
             // Iterate all venues and discriminate whether each venue's category has already existed in the category list array or not.
             this.locationList().forEach(function(item) {
-              var tempArr = [];
-              var itemIsExist = false;
-              // Discriminate whether the current venue's category is equal to one of category list.
-              itemIsExist = list.some(function(ele) {
-                tempArr.push(ele);
-                return ele.name === item.category;
-              });
-              // If current venue's category doesn't exist, a new category object will be created.
-              // Otherwise, the current venue's id will be pushed into the id array of this category.
-              if (!itemIsExist) {
-                list.push({
-                name: item.category,  // string || null
-                id: [item.id]     // array of number
-              });
-              } else {
-                list[tempArr.length - 1].id.push(item.id);
-              }
+                var tempArr = [];
+                var itemIsExist = false;
+                // Discriminate whether the current venue's category is equal to one of category list.
+                itemIsExist = list.some(function(ele) {
+                    tempArr.push(ele);
+                    return ele.name === item.category;
+                });
+                // If current venue's category doesn't exist, a new category object will be created.
+                // Otherwise, the current venue's id will be pushed into the id array of this category.
+                if (!itemIsExist) {
+                    list.push({
+                        name: item.category, // string || null
+                        id: [item.id] // array of number
+                    });
+                } else {
+                    list[tempArr.length - 1].id.push(item.id);
+                }
             });
             return list;
-        },this);
+        }, this);
 
         // It is a private observable object with two properties: name and id
         // name - {string} store the filter string coming from users inputing or category choosing
@@ -169,7 +169,7 @@ var app = app || {};
 
             self.searchBoxSelected(false);
 
-            if (_cityNameChanged&&self.actualFilterName()!==_currentFilter().name()) {
+            if (_cityNameChanged && self.actualFilterName() !== _currentFilter().name()) {
                 self.listPretendInvisible(true);
             }
 
@@ -190,7 +190,7 @@ var app = app || {};
         // Invoke `fetchLocations` method when users press enter key
         // @param {object} data - the object that users interact with (ie listViewModel)
         // @param {object} event - the event object
-        self.enterKeyUp = function(data,event) {
+        self.enterKeyUp = function(data, event) {
             if (event.keyCode === 13) {
                 self.fetchLocations(data);
             }
@@ -245,7 +245,7 @@ var app = app || {};
         // Caching the current location which is selected by users
         self.currentLocation = ko.observable();
         // If no accessible images are responsed from foursquare.com, this placeholder will be used
-        self.imageHolder = "http://lorempixel.com/500/300";
+        self.imageHolder = 'http://lorempixel.com/500/300';
         // Caching the status of details panel
         self.detailsStatus = ko.observable(false);
         // Store the object where details are triggered from

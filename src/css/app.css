@@ -1,7 +1,9 @@
 /* fontawesome */
+
 [class*="fontawesome-"]:before {
-  font-family: 'FontAwesome', sans-serif;
+    font-family: 'FontAwesome', sans-serif;
 }
+
 
 /*
  *
@@ -24,8 +26,9 @@ body {
 
 body,
 input {
-    font-family:Verdana,'Lucida Grande',Arial;
+    font-family: Verdana, 'Lucida Grande', Arial;
 }
+
 @media screen and (orientation: portrait) {
     body {
         font-size: 115%;
@@ -52,6 +55,7 @@ label {
     color: #268bd2;
 }
 
+
 /*
  *
  * Map
@@ -61,6 +65,7 @@ label {
 #map {
     height: 100%;
 }
+
 
 /*
  *
@@ -75,6 +80,7 @@ label {
     width: 100%;
     background: #fff;
 }
+
 @media screen and (orientation: landscape) {
     .search-list {
         width: 400px;
@@ -87,6 +93,7 @@ label {
     text-align: center;
     z-index: 2;
 }
+
 @media screen and (orientation: landscape) {
     .search-bar {
         box-shadow: 0 2px 3px rgba(85, 85, 85, 0.42);
@@ -98,6 +105,7 @@ label {
     text-decoration: none;
     color: inherit;
 }
+
 .search-bar a:hover {
     color: #62a8da;
 }
@@ -178,6 +186,7 @@ label {
 .search-hide {
     transform: translateX(-100%);
 }
+
 @media screen and (orientation: landscape) {
     .search-hide {
         transform: translateX(-400px);
@@ -187,6 +196,7 @@ label {
 .search-show {
     transform: translateX(0);
 }
+
 
 /*
  *
@@ -200,7 +210,7 @@ label {
     padding: 1rem;
     height: calc(100% - 3.5rem);
     overflow-y: auto;
-    will-change:transform;
+    will-change: transform;
     transition: transform 1s ease;
     z-index: 1;
 }
@@ -224,6 +234,7 @@ label {
     text-decoration: none;
     color: inherit;
 }
+
 .locations-item-name:hover {
     color: #268bd2;
 }
@@ -234,6 +245,7 @@ label {
     padding: 1rem;
     background: #fff;
 }
+
 
 /*
  *
@@ -251,16 +263,18 @@ label {
     height: 100%;
     background: #fff;
     color: #444;
-    will-change:transform;
+    will-change: transform;
     transition: transform 1s ease;
     z-index: 3;
 }
+
 @media screen and (orientation: landscape) {
     .location-details {
         width: 400px;
         height: calc(100% - 3.5rem);
     }
 }
+
 @media screen and (min-width: 501px) and (orientation: portrait) {
     .location-details {
         padding: 3.5rem 3rem 1rem;
@@ -277,11 +291,13 @@ label {
     text-align: center;
     cursor: pointer;
 }
+
 @media screen and (orientation: landscape) {
     .location-details-close-icon {
         display: none;
     }
 }
+
 @media screen and (min-width: 501px) and (orientation: portrait) {
     .location-details-close-icon {
         width: 3.5rem;
@@ -292,6 +308,7 @@ label {
 .location-img {
     max-width: 100%;
 }
+
 @media screen and (min-width: 501px) and (orientation: portrait) {
     .location-img {
         width: 100%;
@@ -314,11 +331,9 @@ label {
     border-radius: 1.5rem;
     font-size: 1.5rem;
 }
+
 @media screen and (orientation: landscape) {
     .show-map-btn {
         display: none;
     }
 }
-
-
-

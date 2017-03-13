@@ -12,7 +12,7 @@ var app = app || {};
         bounds: null, // the initial map bounds containing all venues in a certain city
         largeInfoWindow: null, // the infoWindow object
         isMobile: false, // orientation of device: portrait is true; landscape is false
-        listenerIDs:[], // Caching all listeners'id created using `google.maps.event.addListener` method in google map
+        listenerIDs: [], // Caching all listeners'id created using `google.maps.event.addListener` method in google map
 
         // Initialize the google map
         // It is invoked when google map data is fetched successfully
@@ -20,7 +20,7 @@ var app = app || {};
             var self = this;
 
             this.map = new google.maps.Map(document.getElementById('map'), {
-                center: new google.maps.LatLng(34.53,108.92),
+                center: new google.maps.LatLng(34.53, 108.92),
                 scrollwheel: true,
                 zoom: 4
             });
@@ -52,13 +52,13 @@ var app = app || {};
             // Each location and its corresponding marker share the same id value
             for (var i = 0; i < locations.length; i++) {
                 var markerOptions = {
-                        position: locations[i].geoLocation,
-                        address: locations[i].address[0] || '',
-                        category: locations[i].category || '',
-                        title: locations[i].name,
-                        icon: defaultIcon,
-                        animation: google.maps.Animation.DROP,
-                        id: locations[i].id
+                    position: locations[i].geoLocation,
+                    address: locations[i].address[0] || '',
+                    category: locations[i].category || '',
+                    title: locations[i].name,
+                    icon: defaultIcon,
+                    animation: google.maps.Animation.DROP,
+                    id: locations[i].id
                 };
                 var marker = new google.maps.Marker(markerOptions);
                 this.markers.push(marker);
@@ -84,7 +84,7 @@ var app = app || {};
                     this.setIcon(defaultIcon);
                 });
                 // Caching all listeners'id created using `google.maps.event.addListener` method in google map
-                this.listenerIDs.push(listenerID1,listenerID2,listenerID3);
+                this.listenerIDs.push(listenerID1, listenerID2, listenerID3);
             }
         },
 
@@ -104,7 +104,7 @@ var app = app || {};
             var markers = [];
             locations.forEach(function(item) {
                 markers.push(this.markers[item.id]);
-            },app.googleMap);
+            }, app.googleMap);
 
             // Show markers in the map
             var markersLen = markers.length;
@@ -164,12 +164,11 @@ var app = app || {};
                 // Load CSS file dynamically and style the infoWindow content
                 // Inspired by http://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript
                 var cssId = 'infoWindowCSS';
-                if (!document.getElementById(cssId))
-                {
-                    var head  = document.getElementsByTagName('head')[0];
-                    var link  = document.createElement('link');
-                    link.id   = cssId;
-                    link.rel  = 'stylesheet';
+                if (!document.getElementById(cssId)) {
+                    var head = document.getElementsByTagName('head')[0];
+                    var link = document.createElement('link');
+                    link.id = cssId;
+                    link.rel = 'stylesheet';
                     link.type = 'text/css';
                     link.href = 'css/infoWindow.css';
                     head.appendChild(link);
@@ -208,7 +207,7 @@ var app = app || {};
                 this.currentMarker = null;
             }
             this.currentLocation = null;
-            if (this.markers.length!==0) {
+            if (this.markers.length !== 0) {
                 this.markers.forEach(function(item) {
                     item.setMap(null);
                 });
