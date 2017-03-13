@@ -1,6 +1,6 @@
 # neighborhood-map
 
-It is the Project 7 of Udacity's Front-End Web Developer Nanodegree. 
+It is the Project 7 for the Udacity's Front-End Web Developer Nanodegree. 
 
 A responsive single web page app named *goSightseeing* was created to provide travellers the recommended sights in a certain city where they want to travel or they are.
 
@@ -23,20 +23,8 @@ The `src` stores development code and the `dist` stores production code.
 + Open `index.html` (Make sure you are online)
 + The sights of `New York` city are rendered initially after the web page is loaded.
 + Filter venues by inputing sights name or type, e.g. `park`; or by choosing from category list.
-+ Clicking `search` icon or pressing `enter` key is equivalent.
++ Clicking `search` icon and pressing `enter` key are equivalent.
 + Change the city name if you want.
-
-## Supported by
-
-### Framework and library
-
-+ [Knockoutjs](http://knockoutjs.com/)
-+ [ajax.js](https://github.com/littleBlack520/ajax)
-    * Improvement based on this open source project
-
-### Web font
-
-+ [weloveiconfonts](http://weloveiconfonts.com/)
 
 ## Develop locally
 
@@ -63,8 +51,32 @@ Install development node-modules:
     |   |   └── ajax.js
     |   ├── app
     |   |   ├── fetchLocations.js
+    |   |   ├── fetchMap.js
     |   |   ├── googleMap.js
     |   |   └── listViewModel.js
     |   └── app.js
     └── index.html
 
+### Asynchronous Data
+
++ Google Map data : via JSONP  - fetchMap.js
++ foursquare venues data : via XHR  - fetchLocations.js
+
+## Supported by
+
+### Framework and library
+
++ [Knockoutjs](http://knockoutjs.com/)
++ [ajax.js](https://github.com/littleBlack520/ajax)
+    * Improvement based on this open source project
+
+### Web font
+
++ [weloveiconfonts](http://weloveiconfonts.com/)
+
+### Q&A in Stack Overflow
+
++ [http://stackoverflow.com/questions/9206013/javascript-fuzzy-search](http://stackoverflow.com/questions/9206013/javascript-fuzzy-search)
++ [http://stackoverflow.com/questions/281264/remove-empty-elements-from-an-array-in-javascript](http://stackoverflow.com/questions/281264/remove-empty-elements-from-an-array-in-javascript)
++ [http://stackoverflow.com/questions/20857594/knockout-filtering-on-observable-array](http://stackoverflow.com/questions/20857594/knockout-filtering-on-observable-array)
++ [http://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript](http://stackoverflow.com/questions/574944/how-to-load-up-css-files-using-javascript)
