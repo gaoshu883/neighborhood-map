@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>goSightseeing</title>
+    <!-- inline css/app.css -->
+    <style type="text/css">[class*=fontawesome-]:before{font-family:FontAwesome,sans-serif}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body,html{height:100%;margin:0;padding:0}body,input{font-family:Verdana,'Lucida Grande',Arial}@media screen and (orientation:portrait){body{font-size:115%}}input{padding:0}label{display:none}.small{font-size:.85rem}.strong{font-weight:600}.blue-text,.locations-item-name:hover{color:#268bd2}#map{height:100%}.search-list{position:fixed;left:0;top:0;width:100%;background:#fff}@media screen and (orientation:landscape){.search-list{width:400px}}.search-bar{padding:1rem 0;border-bottom:1px solid #ccc;text-align:center;z-index:2}@media screen and (orientation:landscape){.search-bar{box-shadow:0 2px 3px rgba(85,85,85,.42);z-index:4}}.search-bar a{text-decoration:none;color:inherit}.search-bar a:hover{color:#62a8da}.search-toggle-btn{display:inline-block;vertical-align:top}.toggle-list{width:15%;line-height:1.5rem}.search-dropbox{width:70%}.search-cancel-btn{display:none;height:0;width:15%;font-size:1.5rem}.filter-list{width:15%;font-size:1.5rem;line-height:1.45rem}.search-box{padding:0 .5rem;width:100%;font-size:1.2rem;line-height:1.5rem;border:none;border-radius:3px;background:rgba(38,139,210,.52)}.search-city{display:none;width:100%}.search-city-label{display:inline-block;padding:.75rem 0 .25rem}.cancel-btn,.search-btn{display:block;position:relative}.cancel-btn{top:1.5rem}.search-category-list{display:none;margin-top:1rem;padding-top:1rem;line-height:1.5rem}.search-category-name{display:inline-block;margin:5px;padding:2px;border:1px solid #ff7f27;cursor:pointer}.search-hide{transform:translateX(-100%)}@media screen and (orientation:landscape){.search-hide{transform:translateX(-400px)}}.search-show{transform:translateX(0)}.locations-list{display:none;top:calc(3.5rem + 1px);padding:1rem;height:calc(100% - 3.5rem);overflow-y:auto;will-change:transform;transition:transform 1s ease;z-index:1}.locations-item{margin:.25rem 0;border-bottom:1px solid #268bd2;cursor:pointer}.locations-item-order{display:inline-block;width:1.5rem;line-height:1.5rem;border-radius:1.5rem;text-align:center;background:#268bd2}.locations-item-name{text-decoration:none;color:inherit}.locations-notFound{display:none;top:calc(3.5rem + 1px);padding:1rem;background:#fff}.location-details{display:none;position:fixed;bottom:0;left:0;width:100%;padding:3rem 1rem 1rem;height:100%;background:#fff;color:#444;will-change:transform;transition:transform 1s ease;z-index:3}@media screen and (orientation:landscape){.location-details{width:400px;height:calc(100% - 3.5rem)}}@media screen and (min-width:501px) and (orientation:portrait){.location-details{padding:3.5rem 3rem 1rem}}.location-details-close-icon{position:absolute;top:0;left:0;width:3rem;font-size:2rem;line-height:3rem;text-align:center;cursor:pointer}@media screen and (orientation:landscape){.location-details-close-icon{display:none}}@media screen and (min-width:501px) and (orientation:portrait){.location-details-close-icon{width:3.5rem;line-height:3.5rem}}.location-img{max-width:100%}@media screen and (min-width:501px) and (orientation:portrait){.location-img{width:100%}}.location-details-rating{display:inline-block;margin-left:.5rem}.location-details-category{color:#ff7f27;line-height:2rem}.show-map-btn{float:right;width:3rem;border-radius:1.5rem;font-size:1.5rem}@media screen and (orientation:landscape){.show-map-btn{display:none}}</style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <!-- Search bar -->
+    <div class="search-list search-bar">
+        <div class="blue-text">
+            <!-- Remove whitespace between inline-block elements -->
+            <a class="search-toggle-btn toggle-list" href="#" data-bind="click:toggleList,text:toggleMenuText">List</a><div class="search-toggle-btn search-dropbox" data-bind="style:{width:searchBoxSelected()?'55%':''}"><label for="searchBox">Filter locations by name or type</label><input class="search-box" id="searchBox" data-bind="textInput:actualFilterName,event:{click:setSearchFocused,select:setSearchFocused,input:setSearchFocused,keyup:enterKeyUp}" placeholder="Name/Type"><div class="search-city" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><label class="blue-text search-city-label" for="searchCity">Now you are in:</label><input class="search-box" id="searchCity" data-bind="value:cityName,event:{change:changeCityName,keyup:enterKeyUp}"></div></div><div class="search-toggle-btn search-cancel-btn" data-bind="style:{display:searchBoxSelected()?'inline-block':''}"><a class="fontawesome-search search-btn" href="#" data-bind="click:fetchLocations"></a><a class="fontawesome-remove cancel-btn" href="#" data-bind="click:function(){searchBoxSelected(false);return false;}"></a></div><a class="fontawesome-filter search-toggle-btn filter-list" href="#" data-bind="click:toggleFilter"></a>
+        </div>
+        <!-- Here is the category list -->
+        <div class="search-category-list" data-bind="style:{display:filterStatus() ? 'block':''},foreach:categoryList">
+            <span class="search-category-name" data-bind="text:name,event:{click:$parent.fetchLocations}"></span>
+        </div>
+    </div>
+
+    <!-- Locations list -->
+    <div class="search-list locations-list" data-bind="style:{display:!detailsStatus()&&!mapStatus()&&filterLocations().length!==0&&!listPretendInvisible()? 'block':''},css:listCSS">
+        <!-- ko foreach:filterLocations -->
+        <div class="locations-item" data-bind="click:$parent.showDetails">
+            <div>
+                <span class="locations-item-order" data-bind="text:$index() + 1"></span>
+                <a class="locations-item-name strong" href="#" data-bind="text:name"></a>
+                <sup class="strong" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup>
+            </div>
+            <p data-bind="text:address[0]"></p>
+        </div>
+        <!-- /ko -->
+    </div>
+    <!-- If there is no venue meeting the specific filter condition -->
+    <div class="search-list locations-notFound" data-bind="style:{display:actualFilterName() && (filterLocations().length == 0)&&!listPretendInvisible()? 'block':''}">
+        <p>Not Found</p>
+    </div>
+
+    <!-- Location details -->
+    <div id="locationDetails" class="location-details" data-bind="style:{display:detailsStatus()&&!listStatus()&&!mapStatus()&&currentLocation()? 'block':''},with:currentLocation">
+        <div class="fontawesome-angle-left location-details-close-icon blue-text" data-bind="click:$parent.hideDetails"></div>
+        <div><img class="location-img" data-bind="attr: { src: photo.visibility == 'public' ? photo.prefix+'500x300'+photo.suffix : $parent.imageHolder, alt: name }"></div>
+        <p class="strong"><span data-bind="text:name"></span><sup class="location-details-rating" data-bind="text:rating,style:{color:'#'+ratingColor}"></sup></p>
+        <p>
+            <span class="location-details-category small" data-bind="text:category"></span>
+            <button class="show-map-btn blue-text fontawesome-map-marker" data-bind="click:$parent.showMap"></button>
+        </p>
+        <p class="location-details-address small" data-bind="text:address"></p>
+        <div data-bind="visible:hours,with:hours">
+            <p data-bind="visible:isOpen,text:status"></p>
+            <p data-bind="visible:!isOpen,text: 'Close now!'"></p>
+        </div>
+        <p data-bind="text:contact"></p>
+        <p>
+            <a data-bind="attr: {href:url}"></a>
+        </p>
+    </div>
+
+    <script type="text/javascript" src="js/goSightseeing.js"></script>
+</body>
+
+</html>
+
