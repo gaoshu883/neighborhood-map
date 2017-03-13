@@ -44,6 +44,7 @@ var app = app || {};
                         app.googleMap.listenerIDs.forEach(function(item) {
                             item.remove();
                         });
+                        app.googleMap.listenerIDs.length = 0;
                     }
                     // Reset some properties of googleMap with default values
                     app.googleMap.resetMap();
