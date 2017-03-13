@@ -16,7 +16,7 @@ var app = app || {};
   // Fetch locations data after google map data is fetched successfully.
   mapId.addEventListener('load', function() {
     // Initialize the city name
-    app.listViewModel.cityName('New York');
+    app.listViewModel.cityName('Washington D. C.');
     // Fetch the initial city data
     app.fetchLocations();
   });

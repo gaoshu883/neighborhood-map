@@ -107,11 +107,11 @@ var app = app || {};
             },app.googleMap);
 
             // Show markers in the map
-            var len = markers.length;
-            if (len === 0) {
+            var markersLen = markers.length;
+            if (markersLen === 0) {
                 return;
             } else {
-                for (var j = 0; j < len; j++) {
+                for (var j = 0; j < markersLen; j++) {
                     markers[j].setMap(this.map);
                     // Each marker has a label
                     markers[j].setLabel({
@@ -166,7 +166,6 @@ var app = app || {};
                 var cssId = 'infoWindowCSS';
                 if (!document.getElementById(cssId))
                 {
-                    // console.log('Load CSS file dynamically and successfully');
                     var head  = document.getElementsByTagName('head')[0];
                     var link  = document.createElement('link');
                     link.id   = cssId;

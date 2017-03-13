@@ -21,7 +21,7 @@ The `src` stores development code and the `dist` stores production code.
   $> cd /path/to/the-project-folder/dist
   ```
 + Open `index.html` (Make sure you are online)
-+ The sights of `New York` city are rendered initially after the web page is loaded.
++ The sights of `Washington D. C.` are default view.
 + Filter venues by inputing sights name or type, e.g. `park`; or by choosing from category list.
 + Clicking `search` icon and pressing `enter` key are equivalent.
 + Change the city name if you want.
