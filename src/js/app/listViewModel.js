@@ -123,7 +123,7 @@ var app = app || {};
                 if (data.id && data.name !== _currentFilter().name()) {
                     // It is category filter
                     _currentFilter().name(data.name);
-                    _currentFilter().id(data.id);
+                    _currentFilter().id(data.id.slice(0));
                     // Show the category name in the search box
                     self.actualFilterName(data.name);
                 } else if (!data.id && self.actualFilterName() !== _currentFilter().name()) {
