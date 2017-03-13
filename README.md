@@ -9,7 +9,7 @@ It was developed with public APIs provided by Google Map and Foursquare:
 + [Google Map](https://maps.google.com/): provide the map data
 + [Foursquare](https://foursquare.com/): provide the recommended place data (including images)
 
-Have fun with this app: []()
+Have fun with this app: [https://lu3xiang.top/neighborhood-map/](https://lu3xiang.top/neighborhood-map/)
 
 ## Run locally
 
