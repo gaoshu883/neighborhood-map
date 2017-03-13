@@ -10,8 +10,8 @@ var gulp = require('gulp'),
 
 //Paths to various files
 var paths = {
-    scripts: ['src/js/lib/*.js', 'src/js/app/*.js'], // concat in order and minify
-    appScript: ['src/js/app.js'], // inline and minify
+    scripts: ['src/js/lib/*.js', 'src/js/app/*.js','src/js/app.js'], // concat in order and minify
+    appScript: [], // inline and minify
     styles: ['src/css/*.css'], // minify autoprefixer inline app.css
     appStyle: ['src/css/app.css'], //   minify
     content: ['src/index.html'] // move
@@ -30,13 +30,6 @@ gulp.task('scripts', function(cb) {
     );
 });
 
-// Minifies app.js file
-gulp.task('appScript', function() {
-    return gulp.src(paths.appScript)
-        .pipe(uglify())
-        .pipe(gulp.dest('./dist/js/'));
-});
-
 //Minifies and autoprefixers CSS files
 gulp.task('styles', function() {
     return gulp.src(paths.styles)
@@ -51,23 +44,18 @@ gulp.task('moveHTML', function() {
         .pipe(gulp.dest('./dist/'));
 });
 
-//Inlines CSS and JS files
+//Inlines CSS files
 gulp.task('inlinesource', function() {
     return gulp.src('dist/index.html')
         .pipe(inlinesource())
         .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('default', gulpSequence(['scripts', 'appScript', 'styles', 'moveHTML'], 'inlinesource'));
+gulp.task('default', gulpSequence(['scripts', 'styles', 'moveHTML'], 'inlinesource'));
 
 //Listen to JS,CSS and HTML files
 gulp.task('watch', function() {
     gulp.watch(paths.scripts, ['scripts']);
-    gulp.watch(paths.appScript, function(event) {
-        gulpSequence('appScript', 'inlinesource')(function(err) {
-            if (err) console.log(err);
-        });
-    });
     gulp.watch(paths.styles, function(event) {
         gulpSequence('styles', 'inlinesource')(function(err) {
             if (err) console.log(err);
